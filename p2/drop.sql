@@ -1,0 +1,4 @@
+DROP TABLE Item;
+DROP TABLE Category;
+DROP TABLE Bids;
+DROP TABLE User;
