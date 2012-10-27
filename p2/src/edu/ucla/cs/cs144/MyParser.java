@@ -163,17 +163,25 @@ class MyParser {
         }
     }
 
+    /* Surrounds some text with double quotes.
+     */
     static String quote(String text) {
         return "\"" + text + "\"";
     }
 
+    /* Escapes characters in text that would break MySQL loading and
+     * surrounds it with double quotes.
+     */
     static String escapeAndQuote(String text) {
-        text = text.replace("\\", "\\\\");
-        text = text.replace("\"", "\\\"");
+        text = text.replace("\\", "\\\\"); // escape backslashes
+        text = text.replace("\"", "\\\""); // escape quotes
 
         return quote(text);
     }
 
+    /* Formats a date from the format used in the .XML files to one
+     * that MySQL can use.
+     */
     static String formatDate(String text) {
         /* Time parser */
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
@@ -194,6 +202,9 @@ class MyParser {
         return text;
     }
 
+    /* Returns the string "NULL" if the text is empty,
+     * otherwise return the input text.
+     */
     static String nullify(String text) {
         return (text.equals("")) ? "NULL" : text;
     }
@@ -236,16 +247,12 @@ class MyParser {
             //   Parse the data and store in the above vectors
             //==================================================
 
-            /* Go through DOM structure */
+            // Go through DOM structure
             Element root = doc.getDocumentElement();
             Element[] items = getElementsByTagNameNR(root, "Item");
 
-            int itemCount = 0;
-
             // For each <Item>
-            for (int i = 0, il = items.length; i < il; ++i) {
-
-                ++itemCount;
+            for (int i = 0; i < items.length; ++i) {
 
                 Element curItem = items[i];
                 Element seller = getElementByTagNameNR(curItem, "Seller");
@@ -276,7 +283,7 @@ class MyParser {
                 // For each <Bid>
                 Element bidsElement = getElementByTagNameNR(curItem, "Bids");
                 Element[] bids = getElementsByTagNameNR(bidsElement, "Bid");
-                for (int j = 0, jl = bids.length; j < jl; ++j) {
+                for (int j = 0; j < bids.length; ++j) {
 
                     Element curBid = bids[j];
                     Element bidder = getElementByTagNameNR(curBid, "Bidder");
@@ -300,7 +307,7 @@ class MyParser {
 
                 // For each <Category>
                 Element[] categories = getElementsByTagNameNR(curItem, "Category");
-                for (int j = 0, jl = categories.length; j < jl; ++j) {
+                for (int j = 0; j < categories.length; ++j) {
 
                     String category = categories[j].getTextContent();
 
@@ -395,7 +402,7 @@ class MyParser {
                 categoriesSQL.append(escapeAndQuote(category[1]) + ");\n");
             }
 
-            FileWriter fstream = new FileWriter(file.getAbsoluteFile(), true);
+            FileWriter fstream = new FileWriter(file, true); // 2nd arg toggles append mode
             BufferedWriter out = new BufferedWriter(fstream);
 
             out.write(itemsSQL.toString() +
@@ -403,7 +410,6 @@ class MyParser {
                       bidsSQL.toString() +
                       categoriesSQL.toString());
             out.close();
-
         }
         catch (IOException e) {
             e.printStackTrace();
