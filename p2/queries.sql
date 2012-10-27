@@ -22,7 +22,7 @@ FROM (
   AS COUNT
   FROM Categories
   GROUP BY itemID
-  )
+  ) C
 WHERE COUNT = 4;
 
 
@@ -44,16 +44,29 @@ WHERE currently = (
 
 
 -- 5. Find the number of sellers whose rating is higher than 1000.
-SELECT UserID
-FROM Users
-WHERE UserId IN (SELECT sellerID
-                 FROM Items)
-       AND Users.rating > 1000;
+SELECT COUNT(*)
+FROM (
+  SELECT DISTINCT userID
+  FROM Users, Items
+  WHERE Users.userID = Items.sellerID
+    AND Users.rating > 1000
+  ) U;
+
 
 -- 6. Find the number of users who are both sellers and bidders.
-SELECT sellerID
-FROM Items
-WHERE sellerID IN (SELECT userID from Bids);
+SELECT COUNT(*)
+FROM (
+  SELECT DISTINCT sellerID
+  FROM Items, Bids
+  WHERE sellerID = userID
+  ) U;
 
 
 -- 7. Find the number of categories that include at least one item with a bid of more than $100.
+SELECT COUNT(*)
+FROM (
+  SELECT DISTINCT category
+  FROM Categories, Bids
+  WHERE Categories.itemID = Bids.itemID
+    AND Bids.amount > 100
+  ) U;

@@ -1,4 +1,1 @@
-DROP TABLE Items;
-DROP TABLE Users;
-DROP TABLE Bids;
-DROP TABLE Categories;
+DROP TABLE IF EXISTS Items, Users, Bids, Categories;

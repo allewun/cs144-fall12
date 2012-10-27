@@ -202,11 +202,15 @@ class MyParser {
         return text;
     }
 
-    /* Returns the string "NULL" if the text is empty,
-     * otherwise return the input text.
+    /* Returns the string "\N" if the text is empty,
+     * otherwise return the some default case.
      */
+    static String nullify(String text, String fallbackText) {
+        return (text.equals("")) ? "\\N" : fallbackText;
+    }
+
     static String nullify(String text) {
-        return (text.equals("")) ? "NULL" : text;
+        return nullify(text, text);
     }
 
     /* Process one items-???.xml file.
@@ -238,9 +242,6 @@ class MyParser {
             Vector<String[]> parsedUsers      = new Vector<String[]>();
             Vector<String[]> parsedBids       = new Vector<String[]>();
             Vector<String[]> parsedCategories = new Vector<String[]>();
-
-            // Create the "create.sql" file
-            File file = new File("load.sql");
 
             //==================================================
             // Step 1:
@@ -332,84 +333,99 @@ class MyParser {
             // Generate the INSERT statements for the Items table
             for (int i = 0; i < parsedItems.size(); ++i) {
 
-                // 0: itemID INT PRIMARY KEY
-                // 1: name VARCHAR(100)
-                // 2: currently DECIMAL(8,2)
-                // 3: buy_price DECIMAL(8,2)
-                // 4: first_bid DECIMAL(8,2)
-                // 5: num_of_bids INT
-                // 6: started TIMESTAMP
-                // 7: ends TIMESTAMP
-                // 8: sellerID VARCHAR(40) NOT NULL
-                // 9: description VARCHAR(4000)
+                // 0: itemID      INT PRIMARY KEY
+                // 1: name        VARCHAR(100) NOT NULL
+                // 2: currently   DECIMAL(8,2) NOT NULL
+                // 3: buy_price   DECIMAL(8,2)
+                // 4: first_bid   DECIMAL(8,2) NOT NULL
+                // 5: num_of_bids INT NOT NULL
+                // 6: started     TIMESTAMP NOT NULL
+                // 7: ends        TIMESTAMP NOT NULL
+                // 8: sellerID    VARCHAR(40) NOT NULL
+                // 9: description VARCHAR(4000) NOT NULL
 
                 String[] item = parsedItems.get(i);
 
-                itemsSQL.append("INSERT INTO Items VALUES (");
-                itemsSQL.append(item[0] + ", ");
-                itemsSQL.append(escapeAndQuote(item[1]) + ", ");
+                itemsSQL.append(item[0] + ",");
+                itemsSQL.append(escapeAndQuote(item[1]) + ",");
                 itemsSQL.append(strip(item[2]) + ", ");
-                itemsSQL.append(nullify(strip(item[3])) + ", ");
-                itemsSQL.append(strip(item[4]) + ", ");
-                itemsSQL.append(item[5] + ", ");
-                itemsSQL.append(formatDate(item[6]) + ", ");
-                itemsSQL.append(formatDate(item[7]) + ", ");
-                itemsSQL.append(escapeAndQuote(item[8]) + ", ");
-                itemsSQL.append(escapeAndQuote(item[9]) + ");\n");
+                itemsSQL.append(nullify(strip(item[3])) + ",");
+                itemsSQL.append(strip(item[4]) + ",");
+                itemsSQL.append(item[5] + ",");
+                itemsSQL.append(formatDate(item[6]) + ",");
+                itemsSQL.append(formatDate(item[7]) + ",");
+                itemsSQL.append(escapeAndQuote(item[8]) + ",");
+                itemsSQL.append(escapeAndQuote(item[9]) + "\n");
             }
 
             // Generate the INSERT statements for the Users table
             for (int i = 0; i < parsedUsers.size(); ++i) {
-                // 0: userID VARCHAR(40) PRIMARY KEY
-                // 1: rating INT
+                // 0: userID   VARCHAR(40) PRIMARY KEY
+                // 1: rating   INT NOT NULL
                 // 2: location VARCHAR(40)
-                // 3: country VARCHAR(40)
+                // 3: country  VARCHAR(40)
 
                 String[] user = parsedUsers.get(i);
 
-                usersSQL.append("INSERT INTO Users VALUES (");
-                usersSQL.append(escapeAndQuote(user[0]) + ", ");
-                usersSQL.append(user[1] + ", ");
-                usersSQL.append(escapeAndQuote(user[2]) + ", ");
-                usersSQL.append(escapeAndQuote(user[3]) + ");\n");
+                usersSQL.append(escapeAndQuote(user[0]) + ",");
+                usersSQL.append(user[1] + ",");
+                usersSQL.append(nullify(user[2], escapeAndQuote(user[2])) + ",");
+                usersSQL.append(nullify(user[3], escapeAndQuote(user[3])) + "\n");
             }
 
             // Generate the INSERT statements for the Bids table
             for (int i = 0; i < parsedBids.size(); ++i) {
-                // 0: itemID VARCHAR(40) PRIMARY KEY
-                // 1: userID VARCHAR(40)
-                // 2: time TIMESTAMP
-                // 3: amount DECIMAL(8,2)
+                // 0: itemID VARCHAR(40) NOT NULL
+                // 1: userID VARCHAR(40) NOT NULL
+                // 2: time   TIMESTAMP NOT NULL
+                // 3: amount DECIMAL(8,2) NOT NULL
+                // PRIMARY KEY (itemID, userID, time)
 
                 String[] bid = parsedBids.get(i);
 
-                bidsSQL.append("INSERT INTO Bids VALUES (");
-                bidsSQL.append(bid[0] + ", ");
-                bidsSQL.append(escapeAndQuote(bid[1]) + ", ");
-                bidsSQL.append(formatDate(bid[2]) + ", ");
-                bidsSQL.append(strip(bid[3]) + ");\n");
+                bidsSQL.append(bid[0] + ",");
+                bidsSQL.append(escapeAndQuote(bid[1]) + ",");
+                bidsSQL.append(formatDate(bid[2]) + ",");
+                bidsSQL.append(strip(bid[3]) + "\n");
             }
 
             // Generate the INSERT statements for the Category table
             for (int i = 0; i < parsedCategories.size(); ++i) {
-                // 0: itemID VARCHAR(40) PRIMARY KEY
-                // 1: userID VARCHAR(40)
+                // 0: itemID   INT NOT NULL
+                // 1: category VARCHAR(40) NOT NULL
+                // PRIMARY KEY (itemID, category)
 
                 String[] category = parsedCategories.get(i);
 
-                categoriesSQL.append("INSERT INTO Categories VALUES (");
-                categoriesSQL.append(category[0] + ", ");
-                categoriesSQL.append(escapeAndQuote(category[1]) + ");\n");
+                categoriesSQL.append(category[0] + ",");
+                categoriesSQL.append(escapeAndQuote(category[1]) + "\n");
             }
 
-            FileWriter fstream = new FileWriter(file, true); // 2nd arg toggles append mode
-            BufferedWriter out = new BufferedWriter(fstream);
+            // Create the "create.sql" file
+            File items_data_file = new File("Items.dat");
+            File users_data_file = new File("Users.dat");
+            File bids_data_file = new File("Bids.dat");
+            File categories_data_file = new File("Categories.dat");
 
-            out.write(itemsSQL.toString() +
-                      usersSQL.toString() +
-                      bidsSQL.toString() +
-                      categoriesSQL.toString());
-            out.close();
+            FileWriter fstream_items = new FileWriter(items_data_file, true); // 2nd arg toggles append mode
+            FileWriter fstream_users = new FileWriter(users_data_file, true);
+            FileWriter fstream_bids = new FileWriter(bids_data_file, true);
+            FileWriter fstream_categories = new FileWriter(categories_data_file, true);
+
+            BufferedWriter out_items = new BufferedWriter(fstream_items);
+            BufferedWriter out_users = new BufferedWriter(fstream_users);
+            BufferedWriter out_bids = new BufferedWriter(fstream_bids);
+            BufferedWriter out_categories = new BufferedWriter(fstream_categories);
+
+            out_items.write(itemsSQL.toString());
+            out_users.write(usersSQL.toString());
+            out_bids.write(bidsSQL.toString());
+            out_categories.write(categoriesSQL.toString());
+
+            out_items.close();
+            out_users.close();
+            out_bids.close();
+            out_categories.close();
         }
         catch (IOException e) {
             e.printStackTrace();
