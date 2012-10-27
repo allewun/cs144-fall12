@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<TITLE>CS144 Project 2 Submission</TITLE>
+<style type="text/css">
+body   {  font-family: Arial, Helvetica, sans-serif; font-size: 12pt}
+</style>
+</HEAD>
+
+<BODY>
+
+<H1>CS144 Project 2 Submission</H1>
+
+<h2><font color="green">Submission success</font></h2>
+You should receive a confirmation email with the following message at allen.wu@ucla.edu
+<hr>
+<pre>
+The following information has been submitted:
+
+Your name: Allen Wu
+Your student id: 103790579
+Your email: allen.wu@ucla.edu
+Your platform: virtualBox
+File name: project2.zip
+File size: 9429175
+MD5 hash: 6a9a7f518590d19965dab8731adb16bb
+Timestamp: Fri, Oct 26th, 2012 10:56:26pm
+IP address: 75.85.57.156
+</pre>
+</BODY>
+</HTML>
