@@ -228,6 +228,9 @@ class MyParser {
             Vector<String[]> parsedBids       = new Vector<String[]>();
             Vector<String[]> parsedCategories = new Vector<String[]>();
 
+            // Create the "create.sql" file
+            File file = new File("load.sql");
+
             //==================================================
             // Step 1:
             //   Parse the data and store in the above vectors
@@ -237,8 +240,12 @@ class MyParser {
             Element root = doc.getDocumentElement();
             Element[] items = getElementsByTagNameNR(root, "Item");
 
+            int itemCount = 0;
+
             // For each <Item>
             for (int i = 0, il = items.length; i < il; ++i) {
+
+                ++itemCount;
 
                 Element curItem = items[i];
                 Element seller = getElementByTagNameNR(curItem, "Seller");
@@ -302,6 +309,7 @@ class MyParser {
                     parsedCategories.add(categoryRecord);
                 }
             }
+
 
             //==================================================
             // Step 2:
@@ -371,7 +379,7 @@ class MyParser {
                 bidsSQL.append("INSERT INTO Bids VALUES (");
                 bidsSQL.append(bid[0] + ", ");
                 bidsSQL.append(escapeAndQuote(bid[1]) + ", ");
-                bidsSQL.append(bid[2] + ", ");
+                bidsSQL.append(formatDate(bid[2]) + ", ");
                 bidsSQL.append(strip(bid[3]) + ");\n");
             }
 
@@ -387,13 +395,7 @@ class MyParser {
                 categoriesSQL.append(escapeAndQuote(category[1]) + ");\n");
             }
 
-            /* Create the "create.sql" file */
-            File file = new File("load.sql");
-            if (file.exists())
-                file.delete();
-
-            file.createNewFile();
-            FileWriter fstream = new FileWriter(file.getAbsoluteFile());
+            FileWriter fstream = new FileWriter(file.getAbsoluteFile(), true);
             BufferedWriter out = new BufferedWriter(fstream);
 
             out.write(itemsSQL.toString() +

@@ -11,8 +11,10 @@ ant
 ant run-all
 
 # Duplicate removal
-uniq load.sql > load.sql
+sort load.sql > sorted_load.sql
+uniq sorted_load.sql > load.sql
 
 mysql CS144 < load.sql
 
+rm sorted_load.sql
 rm -r bin
