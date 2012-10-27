@@ -52,19 +52,19 @@ class MyParser {
     static DocumentBuilder builder;
 
     static final String[] typeName = {
-    "none",
-    "Element",
-    "Attr",
-    "Text",
-    "CDATA",
-    "EntityRef",
-    "Entity",
-    "ProcInstr",
-    "Comment",
-    "Document",
-    "DocType",
-    "DocFragment",
-    "Notation",
+        "none",
+        "Element",
+        "Attr",
+        "Text",
+        "CDATA",
+        "EntityRef",
+        "Entity",
+        "ProcInstr",
+        "Comment",
+        "Document",
+        "DocType",
+        "DocFragment",
+        "Notation",
     };
 
     static class MyErrorHandler implements ErrorHandler {
@@ -238,7 +238,7 @@ class MyParser {
             Element[] items = getElementsByTagNameNR(root, "Item");
 
             // For each <Item>
-            for (int i = 0; i < items.length; ++i) {
+            for (int i = 0, il = items.length; i < il; ++i) {
 
                 Element curItem = items[i];
                 Element seller = getElementByTagNameNR(curItem, "Seller");
@@ -269,7 +269,7 @@ class MyParser {
                 // For each <Bid>
                 Element bidsElement = getElementByTagNameNR(curItem, "Bids");
                 Element[] bids = getElementsByTagNameNR(bidsElement, "Bid");
-                for (int j = 0; j < bids.length; ++j) {
+                for (int j = 0, jl = bids.length; j < jl; ++j) {
 
                     Element curBid = bids[j];
                     Element bidder = getElementByTagNameNR(curBid, "Bidder");
@@ -293,7 +293,8 @@ class MyParser {
 
                 // For each <Category>
                 Element[] categories = getElementsByTagNameNR(curItem, "Category");
-                for (int j = 0; j < categories.length; ++j) {
+                for (int j = 0, jl = categories.length; j < jl; ++j) {
+
                     String category = categories[j].getTextContent();
 
                     // add the Category
@@ -308,13 +309,14 @@ class MyParser {
             //   create the load.sql file
             //==================================================
 
-            String itemsSQL = "";
-            String usersSQL = "";
-            String bidsSQL = "";
-            String categoriesSQL = "";
+            StringBuilder itemsSQL = new StringBuilder();
+            StringBuilder usersSQL = new StringBuilder();
+            StringBuilder bidsSQL =  new StringBuilder();
+            StringBuilder categoriesSQL = new StringBuilder();
 
             // Generate the INSERT statements for the Items table
             for (int i = 0; i < parsedItems.size(); ++i) {
+
                 // 0: itemID INT PRIMARY KEY
                 // 1: name VARCHAR(100)
                 // 2: currently DECIMAL(8,2)
@@ -326,20 +328,19 @@ class MyParser {
                 // 8: sellerID VARCHAR(40) NOT NULL
                 // 9: description VARCHAR(4000)
 
-                itemsSQL += "INSERT INTO Items VALUES (";
-
                 String[] item = parsedItems.get(i);
 
-                itemsSQL += item[0] + ", ";
-                itemsSQL += quote(item[1]) + ", ";
-                itemsSQL += strip(item[2]) + ", ";
-                itemsSQL += nullify(strip(item[3])) + ", ";
-                itemsSQL += strip(item[4]) + ", ";
-                itemsSQL += item[5] + ", ";
-                itemsSQL += formatDate(item[6]) + ", ";
-                itemsSQL += formatDate(item[7]) + ", ";
-                itemsSQL += escapeAndQuote(item[8]) + ", ";
-                itemsSQL += escapeAndQuote(item[9]) + ");\n";
+                itemsSQL.append("INSERT INTO Items VALUES (");
+                itemsSQL.append(item[0] + ", ");
+                itemsSQL.append(quote(item[1]) + ", ");
+                itemsSQL.append(strip(item[2]) + ", ");
+                itemsSQL.append(nullify(strip(item[3])) + ", ");
+                itemsSQL.append(strip(item[4]) + ", ");
+                itemsSQL.append(item[5] + ", ");
+                itemsSQL.append(formatDate(item[6]) + ", ");
+                itemsSQL.append(formatDate(item[7]) + ", ");
+                itemsSQL.append(escapeAndQuote(item[8]) + ", ");
+                itemsSQL.append(escapeAndQuote(item[9]) + ");\n");
             }
 
             // Generate the INSERT statements for the Users table
@@ -349,13 +350,13 @@ class MyParser {
                 // 2: location VARCHAR(40)
                 // 3: country VARCHAR(40)
 
-                usersSQL = "INSERT INTO Users VALUES (";
-
                 String[] user = parsedUsers.get(i);
-                usersSQL += escapeAndQuote(user[0]) + ", ";
-                usersSQL += user[1] + ", ";
-                usersSQL += escapeAndQuote(user[2]) + ", ";
-                usersSQL += escapeAndQuote(user[3]) + ");\n";
+
+                usersSQL.append("INSERT INTO Users VALUES (");
+                usersSQL.append(escapeAndQuote(user[0]) + ", ");
+                usersSQL.append(user[1] + ", ");
+                usersSQL.append(escapeAndQuote(user[2]) + ", ");
+                usersSQL.append(escapeAndQuote(user[3]) + ");\n");
             }
 
             // Generate the INSERT statements for the Bids table
@@ -365,13 +366,13 @@ class MyParser {
                 // 2: time TIMESTAMP
                 // 3: amount DECIMAL(8,2)
 
-                bidsSQL += "INSERT INTO Bids VALUES (";
-
                 String[] bid = parsedBids.get(i);
-                bidsSQL += bid[0] + ", ";
-                bidsSQL += escapeAndQuote(bid[1]) + ", ";
-                bidsSQL += bid[2] + ", ";
-                bidsSQL += strip(bid[3]) + ");\n";
+
+                bidsSQL.append("INSERT INTO Bids VALUES (");
+                bidsSQL.append(bid[0] + ", ");
+                bidsSQL.append(escapeAndQuote(bid[1]) + ", ");
+                bidsSQL.append(bid[2] + ", ");
+                bidsSQL.append(strip(bid[3]) + ");\n");
             }
 
             // Generate the INSERT statements for the Category table
@@ -379,22 +380,26 @@ class MyParser {
                 // 0: itemID VARCHAR(40) PRIMARY KEY
                 // 1: userID VARCHAR(40)
 
-                categoriesSQL += "INSERT INTO Category VALUES (";
-
                 String[] category = parsedCategories.get(i);
-                categoriesSQL += category[0] + ", ";
-                categoriesSQL += escapeAndQuote(category[1]) + ");\n";
+
+                categoriesSQL.append("INSERT INTO Category VALUES (");
+                categoriesSQL.append(category[0] + ", ");
+                categoriesSQL.append(escapeAndQuote(category[1]) + ");\n");
             }
 
             /* Create the "create.sql" file */
             File file = new File("load.sql");
             if (file.exists())
-              file.delete();
+                file.delete();
+
             file.createNewFile();
             FileWriter fstream = new FileWriter(file.getAbsoluteFile());
             BufferedWriter out = new BufferedWriter(fstream);
 
-            out.write(itemsSQL + usersSQL + bidsSQL + categoriesSQL);
+            out.write(itemsSQL.toString() +
+                      usersSQL.toString() +
+                      bidsSQL.toString() +
+                      categoriesSQL.toString());
             out.close();
 
         }
