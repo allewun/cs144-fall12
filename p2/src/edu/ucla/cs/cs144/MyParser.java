@@ -52,19 +52,19 @@ class MyParser {
     static DocumentBuilder builder;
 
     static final String[] typeName = {
-	"none",
-	"Element",
-	"Attr",
-	"Text",
-	"CDATA",
-	"EntityRef",
-	"Entity",
-	"ProcInstr",
-	"Comment",
-	"Document",
-	"DocType",
-	"DocFragment",
-	"Notation",
+    "none",
+    "Element",
+    "Attr",
+    "Text",
+    "CDATA",
+    "EntityRef",
+    "Entity",
+    "ProcInstr",
+    "Comment",
+    "Document",
+    "DocType",
+    "DocFragment",
+    "Notation",
     };
 
     static class MyErrorHandler implements ErrorHandler {
@@ -194,9 +194,8 @@ class MyParser {
         try {
             /* Create the "create.sql" file */
             File file = new File("load.sql");
-            if (file.exists())
-                file.delete();
-            file.createNewFile();
+            if (!file.exists())
+                file.createNewFile();
             FileWriter fstream = new FileWriter(file.getAbsoluteFile());
             BufferedWriter out = new BufferedWriter(fstream);
 
