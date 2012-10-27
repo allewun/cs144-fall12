@@ -168,7 +168,7 @@ class MyParser {
     }
 
     static String escapeAndQuote(String text) {
-        text.replace("\\\"", "\"");        // unescape espaced quotes
+        text = text.replace("\\\"", "\"");        // unescape espaced quotes
         text = text.replace("\"", "\\\""); // escape unescaped quotes
 
         return quote(text);
@@ -195,7 +195,7 @@ class MyParser {
     }
 
     static String nullify(String text) {
-        return (text == "") ? "NULL" : text;
+        return (text.equals("")) ? "NULL" : text;
     }
 
     /* Process one items-???.xml file.
@@ -220,10 +220,6 @@ class MyParser {
          * file. Use doc.getDocumentElement() to get the root Element. */
         System.out.println("Successfully parsed - " + xmlFile);
 
-        /* Fill in code here (you will probably need to write auxiliary
-            methods). */
-
-
         try {
 
             // The storage for the parsed data to be used for table creation
@@ -241,24 +237,26 @@ class MyParser {
             Element root = doc.getDocumentElement();
             Element[] items = getElementsByTagNameNR(root, "Item");
 
-
             // For each <Item>
-            for (int i = 0; i < items.length; i++) {
+            for (int i = 0; i < items.length; ++i) {
 
-                String itemID       = items[i].getAttribute("ItemID");
-                String name         = getElementTextByTagNameNR(items[i], "Name");
-                String currently    = getElementTextByTagNameNR(items[i], "Currently");
-                String buyPrice     = getElementTextByTagNameNR(items[i], "Buy_Price");
-                String firstBid     = getElementTextByTagNameNR(items[i], "First_Bid");
-                String numberOfBids = getElementTextByTagNameNR(items[i], "Number_of_Bids");
-                String started      = getElementTextByTagNameNR(items[i], "Started");
-                String ends         = getElementTextByTagNameNR(items[i], "Ends");
-                String sellerID     = getElementByTagNameNR(items[i], "Seller").getAttribute("UserID");
-                String description  = getElementTextByTagNameNR(items[i], "Description");
+                Element curItem = items[i];
+                Element seller = getElementByTagNameNR(curItem, "Seller");
 
-                String sellerLocation = getElementTextByTagNameNR(items[i], "Location");
-                String sellerCountry  = getElementTextByTagNameNR(items[i], "Country");
-                String sellerRating   = getElementByTagNameNR(items[i], "Seller").getAttribute("Rating");
+                String itemID       = curItem.getAttribute("ItemID");
+                String name         = getElementTextByTagNameNR(curItem, "Name");
+                String currently    = getElementTextByTagNameNR(curItem, "Currently");
+                String buyPrice     = getElementTextByTagNameNR(curItem, "Buy_Price");
+                String firstBid     = getElementTextByTagNameNR(curItem, "First_Bid");
+                String numberOfBids = getElementTextByTagNameNR(curItem, "Number_of_Bids");
+                String started      = getElementTextByTagNameNR(curItem, "Started");
+                String ends         = getElementTextByTagNameNR(curItem, "Ends");
+                String sellerID     = seller.getAttribute("UserID");
+                String description  = getElementTextByTagNameNR(curItem, "Description");
+
+                String sellerLocation = getElementTextByTagNameNR(curItem, "Location");
+                String sellerCountry  = getElementTextByTagNameNR(curItem, "Country");
+                String sellerRating   = seller.getAttribute("Rating");
 
                 // add the User (seller)
                 String[] sellerRecord = {sellerID, sellerRating, sellerLocation, sellerCountry};
@@ -269,15 +267,16 @@ class MyParser {
                 parsedItems.add(itemRecord);
 
                 // For each <Bid>
-                Element bidsElement = getElementByTagNameNR(items[i], "Bids");
+                Element bidsElement = getElementByTagNameNR(curItem, "Bids");
                 Element[] bids = getElementsByTagNameNR(bidsElement, "Bid");
                 for (int j = 0; j < bids.length; ++j) {
 
-                    Element bidder = getElementByTagNameNR(bids[j], "Bidder");
+                    Element curBid = bids[j];
+                    Element bidder = getElementByTagNameNR(curBid, "Bidder");
 
                     String userID    = bidder.getAttribute("UserID");
-                    String bidTime   = getElementTextByTagNameNR(bids[j], "Time");
-                    String bidAmount = getElementTextByTagNameNR(bids[j], "Amount");
+                    String bidTime   = getElementTextByTagNameNR(curBid, "Time");
+                    String bidAmount = getElementTextByTagNameNR(curBid, "Amount");
 
                     String bidderRating   = bidder.getAttribute("Rating");
                     String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
@@ -293,7 +292,7 @@ class MyParser {
                 }
 
                 // For each <Category>
-                Element[] categories = getElementsByTagNameNR(items[i], "Category");
+                Element[] categories = getElementsByTagNameNR(curItem, "Category");
                 for (int j = 0; j < categories.length; ++j) {
                     String category = categories[j].getTextContent();
 
