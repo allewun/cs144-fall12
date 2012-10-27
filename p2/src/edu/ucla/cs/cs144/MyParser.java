@@ -164,12 +164,12 @@ class MyParser {
     }
 
     static String quote(String text) {
-        return '"' + text + '"';
+        return "\"" + text + "\"";
     }
 
     static String escapeAndQuote(String text) {
-        text = text.replace("\\\"", "\"");        // unescape espaced quotes
-        text = text.replace("\"", "\\\""); // escape unescaped quotes
+        text = text.replace("\\", "\\\\");
+        text = text.replace("\"", "\\\"");
 
         return quote(text);
     }
@@ -332,7 +332,7 @@ class MyParser {
 
                 itemsSQL.append("INSERT INTO Items VALUES (");
                 itemsSQL.append(item[0] + ", ");
-                itemsSQL.append(quote(item[1]) + ", ");
+                itemsSQL.append(escapeAndQuote(item[1]) + ", ");
                 itemsSQL.append(strip(item[2]) + ", ");
                 itemsSQL.append(nullify(strip(item[3])) + ", ");
                 itemsSQL.append(strip(item[4]) + ", ");
@@ -382,7 +382,7 @@ class MyParser {
 
                 String[] category = parsedCategories.get(i);
 
-                categoriesSQL.append("INSERT INTO Category VALUES (");
+                categoriesSQL.append("INSERT INTO Categories VALUES (");
                 categoriesSQL.append(category[0] + ", ");
                 categoriesSQL.append(escapeAndQuote(category[1]) + ");\n");
             }

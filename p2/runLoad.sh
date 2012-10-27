@@ -8,8 +8,10 @@ fi
 mysql CS144 < create.sql
 
 ant
-ant run
-# ant run-all
+ant run-all
+
+# Duplicate removal
+uniq load.sql > load.sql
 
 mysql CS144 < load.sql
 
