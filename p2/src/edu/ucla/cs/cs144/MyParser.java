@@ -348,7 +348,7 @@ class MyParser {
 
                 itemsSQL.append(item[0] + ",");
                 itemsSQL.append(escapeAndQuote(item[1]) + ",");
-                itemsSQL.append(strip(item[2]) + ", ");
+                itemsSQL.append(strip(item[2]) + ",");
                 itemsSQL.append(nullify(strip(item[3])) + ",");
                 itemsSQL.append(strip(item[4]) + ",");
                 itemsSQL.append(item[5] + ",");
@@ -401,20 +401,20 @@ class MyParser {
                 categoriesSQL.append(escapeAndQuote(category[1]) + "\n");
             }
 
-            // Create the "create.sql" file
-            File items_data_file = new File("Items.dat");
-            File users_data_file = new File("Users.dat");
-            File bids_data_file = new File("Bids.dat");
+            // Create the .dat files
+            File items_data_file      = new File("Items.dat");
+            File users_data_file      = new File("Users.dat");
+            File bids_data_file       = new File("Bids.dat");
             File categories_data_file = new File("Categories.dat");
 
-            FileWriter fstream_items = new FileWriter(items_data_file, true); // 2nd arg toggles append mode
-            FileWriter fstream_users = new FileWriter(users_data_file, true);
-            FileWriter fstream_bids = new FileWriter(bids_data_file, true);
+            FileWriter fstream_items      = new FileWriter(items_data_file, true); // 2nd arg toggles append mode
+            FileWriter fstream_users      = new FileWriter(users_data_file, true);
+            FileWriter fstream_bids       = new FileWriter(bids_data_file, true);
             FileWriter fstream_categories = new FileWriter(categories_data_file, true);
 
-            BufferedWriter out_items = new BufferedWriter(fstream_items);
-            BufferedWriter out_users = new BufferedWriter(fstream_users);
-            BufferedWriter out_bids = new BufferedWriter(fstream_bids);
+            BufferedWriter out_items      = new BufferedWriter(fstream_items);
+            BufferedWriter out_users      = new BufferedWriter(fstream_users);
+            BufferedWriter out_bids       = new BufferedWriter(fstream_bids);
             BufferedWriter out_categories = new BufferedWriter(fstream_categories);
 
             out_items.write(itemsSQL.toString());
