@@ -38,7 +38,9 @@ WHERE currently = (
     SELECT MAX(currently)
     FROM Items
     WHERE num_of_bids > 0
-      AND ends > '2001-12-20 00:00:01');
+      AND ends > '2001-12-20 00:00:01')
+  AND num_of_bids > 0
+  AND ends > '2001-12-20 00:00:01';
 
 
 -- 5. Find the number of sellers whose rating is higher than 1000.
@@ -49,5 +51,9 @@ WHERE UserId IN (SELECT sellerID
        AND Users.rating > 1000;
 
 -- 6. Find the number of users who are both sellers and bidders.
+SELECT sellerID
+FROM Items
+WHERE sellerID IN (SELECT userID from Bids);
+
 
 -- 7. Find the number of categories that include at least one item with a bid of more than $100.
