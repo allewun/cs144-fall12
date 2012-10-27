@@ -163,6 +163,41 @@ class MyParser {
         }
     }
 
+    static String quote(String text) {
+        return '"' + text + '"';
+    }
+
+    static String escapeAndQuote(String text) {
+        text.replace("\\\"", "\"");        // unescape espaced quotes
+        text = text.replace("\"", "\\\""); // escape unescaped quotes
+
+        return quote(text);
+    }
+
+    static String formatDate(String text) {
+        /* Time parser */
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+
+        // Parse the date
+        try {
+            Date formatted = dateFormat.parse(text);
+            dateFormat.applyPattern("yyyy-MM-dd HH:mm:ss");
+
+            text = quote(dateFormat.format(formatted));
+
+            dateFormat.applyPattern("MMM-dd-yy HH:mm:ss");
+        }
+        catch (ParseException pe) {
+            System.out.println("ERROR: Cannot parse dates");
+        }
+
+        return text;
+    }
+
+    static String nullify(String text) {
+        return (text == "") ? "NULL" : text;
+    }
+
     /* Process one items-???.xml file.
      */
     static void processFile(File xmlFile) {
@@ -189,74 +224,180 @@ class MyParser {
             methods). */
 
 
-
-        /**************************************************************/
         try {
-            /* Create the "create.sql" file */
-            File file = new File("load.sql");
-            if (!file.exists())
-                file.createNewFile();
-            FileWriter fstream = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter out = new BufferedWriter(fstream);
 
-            /* Time parser */
-            SimpleDateFormat format = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+            // The storage for the parsed data to be used for table creation
+            Vector<String[]> parsedItems      = new Vector<String[]>();
+            Vector<String[]> parsedUsers      = new Vector<String[]>();
+            Vector<String[]> parsedBids       = new Vector<String[]>();
+            Vector<String[]> parsedCategories = new Vector<String[]>();
+
+            //==================================================
+            // Step 1:
+            //   Parse the data and store in the above vectors
+            //==================================================
 
             /* Go through DOM structure */
             Element root = doc.getDocumentElement();
             Element[] items = getElementsByTagNameNR(root, "Item");
 
+
+            // For each <Item>
             for (int i = 0; i < items.length; i++) {
-                out.write("INSERT INTO Item VALUES(");
 
-                String itemID = items[i].getAttribute("ItemID");
-                String name_not_formated = getElementTextByTagNameNR(items[i], "Name");
-                String name = "\"" + name_not_formated.replace("\"", "\\\"") + "\"";
-                String currently = strip(getElementTextByTagNameNR(items[i], "Currently"));
-                String buy_price = getElementTextByTagNameNR(items[i], "Buy_Price");
-                if (buy_price == "")
-                    buy_price = "NULL";
-                else
-                    buy_price = strip(buy_price);
-                String first_bid = strip(getElementTextByTagNameNR(items[i], "First_Bid"));
-                String num_of_bids = getElementTextByTagNameNR(items[i], "Number_of_Bids");
+                String itemID       = items[i].getAttribute("ItemID");
+                String name         = getElementTextByTagNameNR(items[i], "Name");
+                String currently    = getElementTextByTagNameNR(items[i], "Currently");
+                String buyPrice     = getElementTextByTagNameNR(items[i], "Buy_Price");
+                String firstBid     = getElementTextByTagNameNR(items[i], "First_Bid");
+                String numberOfBids = getElementTextByTagNameNR(items[i], "Number_of_Bids");
+                String started      = getElementTextByTagNameNR(items[i], "Started");
+                String ends         = getElementTextByTagNameNR(items[i], "Ends");
+                String sellerID     = getElementByTagNameNR(items[i], "Seller").getAttribute("UserID");
+                String description  = getElementTextByTagNameNR(items[i], "Description");
 
-                String started = "";
-                String ends = "";
-                try {
-                    Date started_formated = format.parse(getElementTextByTagNameNR(items[i], "Started"));
-                    Date ends_formated = format.parse(getElementTextByTagNameNR(items[i], "Ends"));
-                    format.applyPattern("yyyy-MM-dd HH:mm:ss");
-                    started = "\'" + format.format(started_formated) + "\'";
-                    ends = "\'" + format.format(ends_formated) + "\'";
-                    format.applyPattern("MMM-dd-yy HH:mm:ss");
+                String sellerLocation = getElementTextByTagNameNR(items[i], "Location");
+                String sellerCountry  = getElementTextByTagNameNR(items[i], "Country");
+                String sellerRating   = getElementByTagNameNR(items[i], "Seller").getAttribute("Rating");
+
+                // add the User (seller)
+                String[] sellerRecord = {sellerID, sellerRating, sellerLocation, sellerCountry};
+                parsedUsers.add(sellerRecord);
+
+                // add the Item
+                String[] itemRecord = {itemID, name, currently, buyPrice, firstBid, numberOfBids, started, ends, sellerID, description};
+                parsedItems.add(itemRecord);
+
+                // For each <Bid>
+                Element bidsElement = getElementByTagNameNR(items[i], "Bids");
+                Element[] bids = getElementsByTagNameNR(bidsElement, "Bid");
+                for (int j = 0; j < bids.length; ++j) {
+
+                    Element bidder = getElementByTagNameNR(bids[j], "Bidder");
+
+                    String userID    = bidder.getAttribute("UserID");
+                    String bidTime   = getElementTextByTagNameNR(bids[j], "Time");
+                    String bidAmount = getElementTextByTagNameNR(bids[j], "Amount");
+
+                    String bidderRating   = bidder.getAttribute("Rating");
+                    String bidderLocation = getElementTextByTagNameNR(bidder, "Location");
+                    String bidderCountry  = getElementTextByTagNameNR(bidder, "Country");
+
+                    // add the User (bidder)
+                    String[] bidderRecord = {userID, bidderRating, bidderLocation, bidderCountry};
+                    parsedUsers.add(bidderRecord);
+
+                    // add the Bid
+                    String[] bidRecord = {itemID, userID, bidTime, bidAmount};
+                    parsedBids.add(bidRecord);
                 }
-                catch (ParseException pe) {
-                    System.out.println("ERROR: Cannot parse dates");
+
+                // For each <Category>
+                Element[] categories = getElementsByTagNameNR(items[i], "Category");
+                for (int j = 0; j < categories.length; ++j) {
+                    String category = categories[j].getTextContent();
+
+                    // add the Category
+                    String[] categoryRecord = {itemID, category};
+                    parsedCategories.add(categoryRecord);
                 }
-                String sellerID = "\'" +  getElementByTagNameNR(items[i], "Seller").getAttribute("UserID") + "\'";
-                String description = getElementTextByTagNameNR(items[i], "Description");
-                description = description.replace("\\\"", "\""); /* unescape espaced quotes */
-                description = description.replace("\"", "\\\""); /* escape unescaped quotes */
-                description = "\"" + description + "\"";
-
-
-                out.write(
-                    itemID + ", " +
-                    name + ", " +
-                    currently + ", " +
-                    buy_price + ", " +
-                    first_bid + ", " +
-                    num_of_bids + ", " +
-                    started + ", " +
-                    ends + ", " +
-                    sellerID + ", " +
-                    description
-                );
-                out.write(");\n");
             }
 
+            //==================================================
+            // Step 2:
+            //   Using parsed data stored in the vectors,
+            //   create the load.sql file
+            //==================================================
+
+            String itemsSQL = "";
+            String usersSQL = "";
+            String bidsSQL = "";
+            String categoriesSQL = "";
+
+            // Generate the INSERT statements for the Items table
+            for (int i = 0; i < parsedItems.size(); ++i) {
+                // 0: itemID INT PRIMARY KEY
+                // 1: name VARCHAR(100)
+                // 2: currently DECIMAL(8,2)
+                // 3: buy_price DECIMAL(8,2)
+                // 4: first_bid DECIMAL(8,2)
+                // 5: num_of_bids INT
+                // 6: started TIMESTAMP
+                // 7: ends TIMESTAMP
+                // 8: sellerID VARCHAR(40) NOT NULL
+                // 9: description VARCHAR(4000)
+
+                itemsSQL += "INSERT INTO Items VALUES (";
+
+                String[] item = parsedItems.get(i);
+
+                itemsSQL += item[0] + ", ";
+                itemsSQL += quote(item[1]) + ", ";
+                itemsSQL += strip(item[2]) + ", ";
+                itemsSQL += nullify(strip(item[3])) + ", ";
+                itemsSQL += strip(item[4]) + ", ";
+                itemsSQL += item[5] + ", ";
+                itemsSQL += formatDate(item[6]) + ", ";
+                itemsSQL += formatDate(item[7]) + ", ";
+                itemsSQL += escapeAndQuote(item[8]) + ", ";
+                itemsSQL += escapeAndQuote(item[9]) + ");\n";
+            }
+
+            // Generate the INSERT statements for the Users table
+            for (int i = 0; i < parsedUsers.size(); ++i) {
+                // 0: userID VARCHAR(40) PRIMARY KEY
+                // 1: rating INT
+                // 2: location VARCHAR(40)
+                // 3: country VARCHAR(40)
+
+                usersSQL = "INSERT INTO Users VALUES (";
+
+                String[] user = parsedUsers.get(i);
+                usersSQL += escapeAndQuote(user[0]) + ", ";
+                usersSQL += user[1] + ", ";
+                usersSQL += escapeAndQuote(user[2]) + ", ";
+                usersSQL += escapeAndQuote(user[3]) + ");\n";
+            }
+
+            // Generate the INSERT statements for the Bids table
+            for (int i = 0; i < parsedBids.size(); ++i) {
+                // 0: itemID VARCHAR(40) PRIMARY KEY
+                // 1: userID VARCHAR(40)
+                // 2: time TIMESTAMP
+                // 3: amount DECIMAL(8,2)
+
+                bidsSQL += "INSERT INTO Bids VALUES (";
+
+                String[] bid = parsedBids.get(i);
+                bidsSQL += bid[0] + ", ";
+                bidsSQL += escapeAndQuote(bid[1]) + ", ";
+                bidsSQL += bid[2] + ", ";
+                bidsSQL += strip(bid[3]) + ");\n";
+            }
+
+            // Generate the INSERT statements for the Category table
+            for (int i = 0; i < parsedCategories.size(); ++i) {
+                // 0: itemID VARCHAR(40) PRIMARY KEY
+                // 1: userID VARCHAR(40)
+
+                categoriesSQL += "INSERT INTO Category VALUES (";
+
+                String[] category = parsedCategories.get(i);
+                categoriesSQL += category[0] + ", ";
+                categoriesSQL += escapeAndQuote(category[1]) + ");\n";
+            }
+
+            /* Create the "create.sql" file */
+            File file = new File("load.sql");
+            if (file.exists())
+              file.delete();
+            file.createNewFile();
+            FileWriter fstream = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter out = new BufferedWriter(fstream);
+
+            out.write(itemsSQL + usersSQL + bidsSQL + categoriesSQL);
             out.close();
+
         }
         catch (IOException e) {
             e.printStackTrace();
