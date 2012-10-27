@@ -18,3 +18,4 @@ mysql CS144 < load.sql
 
 rm sorted_load.sql
 rm -r bin
+rm load.sql

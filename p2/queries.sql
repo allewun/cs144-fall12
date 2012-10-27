@@ -42,6 +42,11 @@ WHERE currently = (
 
 
 -- 5. Find the number of sellers whose rating is higher than 1000.
+SELECT UserID
+FROM Users
+WHERE UserId IN (SELECT sellerID
+                 FROM Items)
+       AND Users.rating > 1000;
 
 -- 6. Find the number of users who are both sellers and bidders.
 

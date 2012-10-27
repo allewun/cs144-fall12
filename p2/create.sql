@@ -30,7 +30,6 @@ CREATE TABLE Bids (
   -- FOREIGN KEY (userID) REFERENCES User(userID)
 );
 
-
 CREATE TABLE Categories (
   itemID   INT NOT NULL,
   category VARCHAR(40) NOT NULL,
