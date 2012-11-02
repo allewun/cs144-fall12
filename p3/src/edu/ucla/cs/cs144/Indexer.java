@@ -1,5 +1,7 @@
 package edu.ucla.cs.cs144;
 
+import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,25 +38,42 @@ public class Indexer {
     }
 
     public void indexItem(ResultSet item) {
-        IndexWriter writer = getIndexWriter(false);
-        Document doc = new Document();
+        try {
+            IndexWriter writer = getIndexWriter(false);
+            Document doc = new Document();
 
-        doc.add(new Field("name", item.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
-        doc.add(new Field("description", item.getString("description"), Field.Store.YES, Field.Index.TOKENIZED));
+            doc.add(new Field("name", item.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
+            doc.add(new Field("description", item.getString("description"), Field.Store.YES, Field.Index.TOKENIZED));
 
-        writer.addDocument(doc);
+            writer.addDocument(doc);
+        }
+	    catch (IOException e) {
+            System.out.println("IOException Error");
+        }
+        catch (SQLException se) {
+            System.out.println("SQLException Error");
+        }
     }
 
     public void indexCategory(ResultSet category) {
-        IndexWriter writer = getIndexWriter(false);
-        Document doc = new Document();
+        try {
+            IndexWriter writer = getIndexWriter(false);
+            Document doc = new Document();
 
-        doc.add(new Field("category", category.getString("category"), Field.Store.YES, Field.Index.TOKENIZED));
+            doc.add(new Field("category", category.getString("category"), Field.Store.YES, Field.Index.TOKENIZED));
 
-        writer.addDocument(doc);
-    }
+            writer.addDocument(doc);
+        }
+    	catch (IOException e) {
+            System.out.println("IOException Error");
+        }
+        catch (SQLException se) {
+            System.out.println("SQLException Error");
+        }
+   }
 
     public void indexBasicKeywords(ResultSet itemAndCategory) {
+        try {
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
 
@@ -65,6 +84,13 @@ public class Indexer {
         doc.add(new Field("basicKeywords", fullSearchableText, Field.Store.YES, Field.Index.TOKENIZED));
 
         writer.addDocument(doc);
+        }
+        catch (IOException e) {
+            System.out.println("IOException Error");
+        }
+        catch (SQLException se) {
+            System.out.println("SQLException Error");
+        }
     }
 
     public void rebuildIndexes() {
@@ -98,39 +124,56 @@ public class Indexer {
          *
          */
 
-        Statement s = conn.createStatement();
+        Statement s = null;
+        try {
+            s = conn.createStatement();
+        }
+        catch (SQLException se) {
+            System.out.println("SQLException Error");
+        }
 
         // Begin indexing...
 
         // Open indexWriter
-        getIndexWriter(true);
-
-        // Lucene indexing of Items
-        ResultSet rs = s.executeQuery("SELECT name, description
-                                       FROM Items");
-        while (rs.next()) {
-            indexItem(rs);
+        try {
+            getIndexWriter(true);
+        }
+        catch (IOException e) {
+            System.out.println("IOException Error");
         }
 
-        // Lucene indexing of Categories
-        rs = s.executeQuery("SELECT category
-                             FROM Categories");
-        while (rs.next()) {
-            indexCategory(rs);
+
+        try {
+            // Lucene indexing of Items
+            ResultSet rs = s.executeQuery("SELECT name, description FROM Items");
+            while (rs.next()) {
+                indexItem(rs);
+            }
+
+            // Lucene indexing of Categories
+            rs = s.executeQuery("SELECT category FROM Categories");
+            while (rs.next()) {
+                indexCategory(rs);
+            }
+
+            // Lucene indexing of basic keywords
+/*            rs = s.executeQuery("SELECT name, description, category FROM Items i, Categories c WHERE i.itemID = c.itemID");
+            while (rs.next()) {
+                indexBasicKeywords(rs);
+            } */
+            
+
+            // Close indexWriter
+            closeIndexWriter();
+
+            rs.close();
         }
-
-        // Lucene indexing of basic keywords
-        rs = s.executeQuery("SELECT name, description, category
-                             FROM Items i, Categories c
-                             WHERE i.itemID = c.itemID");
-        while (rs.next()) {
-            indexBasicKeywords(rs);
+        catch (SQLException se) {
+            System.out.println(se);
         }
-
-        // Close indexWriter
-        closeIndexWriter();
-
-        rs.close();
+        catch (IOException e) {
+            System.out.println(e);
+        }
 
         // close the database connection
         try {
