@@ -106,19 +106,23 @@ public class Indexer {
         getIndexWriter(true);
 
         // Lucene indexing of Items
-        ResultSet rs = s.executeQuery("SELECT name, description FROM Items");
+        ResultSet rs = s.executeQuery("SELECT name, description
+                                       FROM Items");
         while (rs.next()) {
             indexItem(rs);
         }
 
         // Lucene indexing of Categories
-        rs = s.executeQuery("SELECT category FROM Categories");
+        rs = s.executeQuery("SELECT category
+                             FROM Categories");
         while (rs.next()) {
             indexCategory(rs);
         }
 
         // Lucene indexing of basic keywords
-        rs = s.executeQuery("SELECT name, description, category FROM Items i, Categories c WHERE i.itemID = c.itemID");
+        rs = s.executeQuery("SELECT name, description, category
+                             FROM Items i, Categories c
+                             WHERE i.itemID = c.itemID");
         while (rs.next()) {
             indexBasicKeywords(rs);
         }
