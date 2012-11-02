@@ -163,7 +163,7 @@ public class Indexer {
         }
     }
 
-    public static void main(String agrs[]) {
+    public static void main(String args[]) {
         Indexer idx = new Indexer();
         idx.rebuildIndexes();
     }
