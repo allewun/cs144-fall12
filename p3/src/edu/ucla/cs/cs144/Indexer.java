@@ -1,6 +1,7 @@
 package edu.ucla.cs.cs144;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,37 +43,20 @@ public class Indexer {
         }
     }
 
-    public void indexItem(ResultSet item) throws IOException, SQLException {
+    public void indexKeywords (ResultSet itemsRS, String categories) throws IOException, SQLException {
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
 
-        doc.add(new Field("itemID", item.getString("itemID"), Field.Store.YES, Field.Index.NO));
-        doc.add(new Field("name", item.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
-        doc.add(new Field("description", item.getString("description"), Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("itemID", itemsRS.getString("itemID"), Field.Store.YES, Field.Index.NO));
+        doc.add(new Field("name", itemsRS.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("category", categories, Field.Store.NO, Field.Index.TOKENIZED));
+        doc.add(new Field("description", itemsRS.getString("description"), Field.Store.NO, Field.Index.TOKENIZED));
 
-        writer.addDocument(doc);
-    }
-
-    public void indexCategory(ResultSet category) throws IOException, SQLException {
-        IndexWriter writer = getIndexWriter(false);
-        Document doc = new Document();
-
-        doc.add(new Field("itemID", category.getString("itemID"), Field.Store.YES, Field.Index.NO));
-        doc.add(new Field("category", category.getString("category"), Field.Store.YES, Field.Index.TOKENIZED));
-
-        writer.addDocument(doc);
-    }
-
-    public void indexBasicKeywords(ResultSet itemAndCategory) throws IOException, SQLException {
-        IndexWriter writer = getIndexWriter(false);
-        Document doc = new Document();
-
-        String fullSearchableText = itemAndCategory.getString("name") + " " +
-                                    itemAndCategory.getString("description") + " " +
-                                    itemAndCategory.getString("category");
-
-        doc.add(new Field("itemID", itemAndCategory.getString("itemID"), Field.Store.YES, Field.Index.NO));
-        doc.add(new Field("basicKeywords", fullSearchableText, Field.Store.YES, Field.Index.TOKENIZED));
+        // Basic default search
+        String fullSearchableText = itemsRS.getString("name") + " " +
+                                    itemsRS.getString("description") + " " +
+                                    categories;
+        doc.add(new Field("basicKeywords", fullSearchableText, Field.Store.NO, Field.Index.TOKENIZED));
 
         writer.addDocument(doc);
     }
@@ -110,7 +94,8 @@ public class Indexer {
 
         try {
 
-            Statement s = conn.createStatement();
+            Statement s1 = conn.createStatement();
+            Statement s2 = conn.createStatement();
 
             // Begin indexing...
             debug("Starting to index...");
@@ -118,35 +103,38 @@ public class Indexer {
             // Open indexWriter
             getIndexWriter(true);
 
-            debug("Lucene indexing of Items...");
-
-            // Lucene indexing of Items
-            ResultSet rs = s.executeQuery("SELECT itemID, name, description FROM Items");
-            while (rs.next()) {
-                indexItem(rs);
-            }
-
-            debug("Lucene indexing of Catgories...");
-
-            // Lucene indexing of Categories
-            rs = s.executeQuery("SELECT itemID, category FROM Categories");
-            while (rs.next()) {
-                indexCategory(rs);
-            }
-
-            debug("Lucene indexing of basic keywords...");
+            debug("Lucene indexing of keywords...");
 
             // Lucene indexing of basic keywords
-            rs = s.executeQuery("SELECT i.itemID, name, description, category FROM Items i, Categories c WHERE i.itemID = c.itemID");
-            while (rs.next()) {
-                indexBasicKeywords(rs);
+            ResultSet itemsRS = s1.executeQuery("SELECT itemID, name, description FROM Items ORDER BY itemID");
+            ResultSet categoriesRS = s2.executeQuery("SELECT * FROM Categories ORDER BY itemID");
+
+            // Concatenate all of the categories into one string for easy lucene indexing
+            HashMap<Integer, String> combinedCategories = new HashMap<Integer, String>();
+            while (categoriesRS.next()) {
+                int id = categoriesRS.getInt("itemID");
+                String currentCategory = categoriesRS.getString("category");
+                
+                if (combinedCategories.containsKey(id)) {
+                    combinedCategories.put(id, combinedCategories.get(id) + " " +
+                        currentCategory);
+                }
+                else {
+                    combinedCategories.put(id, currentCategory);
+                }
+                        
+            }
+
+            while (itemsRS.next()) {
+                indexKeywords(itemsRS, combinedCategories.get(itemsRS.getInt("itemId")));
             }
 
 
             // Close indexWriter
             closeIndexWriter();
-
-            rs.close();
+            
+            itemsRS.close();
+            categoriesRS.close();
         }
         catch (SQLException ex) {
             System.out.println("SQLException caught");
