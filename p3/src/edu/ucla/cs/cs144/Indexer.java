@@ -44,6 +44,7 @@ public class Indexer {
     }
 
     public void indexKeywords (ResultSet itemsRS, String categories) throws IOException, SQLException {
+        // categories contains a concatenated string of categories for the current item tuple
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
 
@@ -93,9 +94,8 @@ public class Indexer {
          */
 
         try {
-
-            Statement s1 = conn.createStatement();
-            Statement s2 = conn.createStatement();
+            Statement s1 = conn.createStatement(); // Items table
+            Statement s2 = conn.createStatement(); // Categories table
 
             // Begin indexing...
             debug("Starting to index...");
@@ -105,7 +105,7 @@ public class Indexer {
 
             debug("Lucene indexing of keywords...");
 
-            // Lucene indexing of basic keywords
+            // SQL SELECT statements to obtain the tuples
             ResultSet itemsRS = s1.executeQuery("SELECT itemID, name, description FROM Items ORDER BY itemID");
             ResultSet categoriesRS = s2.executeQuery("SELECT * FROM Categories ORDER BY itemID");
 
@@ -114,17 +114,20 @@ public class Indexer {
             while (categoriesRS.next()) {
                 int id = categoriesRS.getInt("itemID");
                 String currentCategory = categoriesRS.getString("category");
-                
+               
+                // If there is already an id key in the Hashmap, append the current category 
                 if (combinedCategories.containsKey(id)) {
                     combinedCategories.put(id, combinedCategories.get(id) + " " +
                         currentCategory);
                 }
+                // If the id is not in the HashMap, add the current id and category into the HashMap
                 else {
                     combinedCategories.put(id, currentCategory);
                 }
                         
             }
 
+            // Index the items with their corresponding categories
             while (itemsRS.next()) {
                 indexKeywords(itemsRS, combinedCategories.get(itemsRS.getInt("itemId")));
             }
