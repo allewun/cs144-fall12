@@ -9,4 +9,4 @@ USE CS144;
 DROP INDEX index_seller ON Items;
 DROP INDEX index_buyPrice ON Items;
 DROP INDEX index_ends ON Items;
-DROP INDEX index_userID on Bids;
+DROP INDEX index_bidder ON Bids;

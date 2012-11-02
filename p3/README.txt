@@ -11,7 +11,7 @@ Part A.2 - Decide Indices to Create
 
     Create MySQL indices on:
         Items.itemID (automatically created)
-        Items.seller
+        Items.sellerID
         Items.buy_price
         Items.ends
         Bids.userID
