@@ -16,6 +16,11 @@ import org.apache.lucene.index.IndexWriter;
 
 public class Indexer {
 
+    //** FOR DEBUGGING PURPOSES **//
+    private static void debug(String msg) {
+        System.out.println(msg);
+    }
+
     /** Creates a new instance of Indexer */
     public Indexer() {
     }
@@ -37,43 +42,28 @@ public class Indexer {
         }
     }
 
-    public void indexItem(ResultSet item) {
-        try {
-            IndexWriter writer = getIndexWriter(false);
-            Document doc = new Document();
+    public void indexItem(ResultSet item) throws IOException, SQLException {
+        IndexWriter writer = getIndexWriter(false);
+        Document doc = new Document();
 
-            doc.add(new Field("name", item.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
-            doc.add(new Field("description", item.getString("description"), Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("itemID", item.getString("itemID"), Field.Store.YES, Field.Index.NO));
+        doc.add(new Field("name", item.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("description", item.getString("description"), Field.Store.YES, Field.Index.TOKENIZED));
 
-            writer.addDocument(doc);
-        }
-	    catch (IOException e) {
-            System.out.println("IOException Error");
-        }
-        catch (SQLException se) {
-            System.out.println("SQLException Error");
-        }
+        writer.addDocument(doc);
     }
 
-    public void indexCategory(ResultSet category) {
-        try {
-            IndexWriter writer = getIndexWriter(false);
-            Document doc = new Document();
+    public void indexCategory(ResultSet category) throws IOException, SQLException {
+        IndexWriter writer = getIndexWriter(false);
+        Document doc = new Document();
 
-            doc.add(new Field("category", category.getString("category"), Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("itemID", category.getString("itemID"), Field.Store.YES, Field.Index.NO));
+        doc.add(new Field("category", category.getString("category"), Field.Store.YES, Field.Index.TOKENIZED));
 
-            writer.addDocument(doc);
-        }
-    	catch (IOException e) {
-            System.out.println("IOException Error");
-        }
-        catch (SQLException se) {
-            System.out.println("SQLException Error");
-        }
-   }
+        writer.addDocument(doc);
+    }
 
-    public void indexBasicKeywords(ResultSet itemAndCategory) {
-        try {
+    public void indexBasicKeywords(ResultSet itemAndCategory) throws IOException, SQLException {
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
 
@@ -81,16 +71,10 @@ public class Indexer {
                                     itemAndCategory.getString("description") + " " +
                                     itemAndCategory.getString("category");
 
+        doc.add(new Field("itemID", itemAndCategory.getString("itemID"), Field.Store.YES, Field.Index.NO));
         doc.add(new Field("basicKeywords", fullSearchableText, Field.Store.YES, Field.Index.TOKENIZED));
 
         writer.addDocument(doc);
-        }
-        catch (IOException e) {
-            System.out.println("IOException Error");
-        }
-        catch (SQLException se) {
-            System.out.println("SQLException Error");
-        }
     }
 
     public void rebuildIndexes() {
@@ -124,56 +108,61 @@ public class Indexer {
          *
          */
 
-        Statement s = null;
         try {
-            s = conn.createStatement();
-        }
-        catch (SQLException se) {
-            System.out.println("SQLException Error");
-        }
 
-        // Begin indexing...
+            Statement s = conn.createStatement();
 
-        // Open indexWriter
-        try {
+            // Begin indexing...
+            debug("Starting to index...");
+
+            // Open indexWriter
             getIndexWriter(true);
-        }
-        catch (IOException e) {
-            System.out.println("IOException Error");
-        }
 
+            debug("Lucene indexing of Items...");
 
-        try {
             // Lucene indexing of Items
-            ResultSet rs = s.executeQuery("SELECT name, description FROM Items");
+            ResultSet rs = s.executeQuery("SELECT itemID, name, description FROM Items");
             while (rs.next()) {
                 indexItem(rs);
             }
 
+            debug("Lucene indexing of Catgories...");
+
             // Lucene indexing of Categories
-            rs = s.executeQuery("SELECT category FROM Categories");
+            rs = s.executeQuery("SELECT itemID, category FROM Categories");
             while (rs.next()) {
                 indexCategory(rs);
             }
 
+            debug("Lucene indexing of basic keywords...");
+
             // Lucene indexing of basic keywords
-/*            rs = s.executeQuery("SELECT name, description, category FROM Items i, Categories c WHERE i.itemID = c.itemID");
+            rs = s.executeQuery("SELECT i.itemID, name, description, category FROM Items i, Categories c WHERE i.itemID = c.itemID");
             while (rs.next()) {
                 indexBasicKeywords(rs);
-            } */
-            
+            }
+
 
             // Close indexWriter
             closeIndexWriter();
 
             rs.close();
         }
-        catch (SQLException se) {
-            System.out.println(se);
+        catch (SQLException ex) {
+            System.out.println("SQLException caught");
+            System.out.println("---");
+            while ( ex != null ){
+                System.out.println("Message   : " + ex.getMessage());
+                System.out.println("SQLState  : " + ex.getSQLState());
+                System.out.println("ErrorCode : " + ex.getErrorCode());
+                System.out.println("---");
+                ex = ex.getNextException();
+            }
         }
-        catch (IOException e) {
-            System.out.println(e);
+        catch (IOException ex) {
+            System.out.println(ex);
         }
+
 
         // close the database connection
         try {
