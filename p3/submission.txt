@@ -1,0 +1,12 @@
+The following information has been submitted:
+
+Your name: Allen Wu
+Your student id: 103790579
+Your partner's name: Samuel Jun
+Your partner's student id: 003955212
+Your email: allen.wu@ucla.edu
+Your platform: virtualBox
+Submitted files (with your original filename and md5 hash):
+	project3a.zip (project3a.zip: 75eafcba8830fd7bee3b1e70d4e4357e)
+Timestamp: Fri, Nov 02nd, 2012 5:26:36pm
+IP address: 198.72.199.69
