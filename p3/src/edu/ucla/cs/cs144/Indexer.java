@@ -17,14 +17,8 @@ import org.apache.lucene.index.IndexWriter;
 
 public class Indexer {
 
-    //** FOR DEBUGGING PURPOSES **//
-    private static void debug(String msg) {
-        System.out.println(msg);
-    }
-
     /** Creates a new instance of Indexer */
-    public Indexer() {
-    }
+    public Indexer() {}
 
     private IndexWriter indexWriter = null;
 
@@ -44,19 +38,23 @@ public class Indexer {
     }
 
     public void indexKeywords (ResultSet itemsRS, String categories) throws IOException, SQLException {
-        // categories contains a concatenated string of categories for the current item tuple
         IndexWriter writer = getIndexWriter(false);
         Document doc = new Document();
 
-        doc.add(new Field("itemID", itemsRS.getString("itemID"), Field.Store.YES, Field.Index.NO));
-        doc.add(new Field("name", itemsRS.getString("name"), Field.Store.YES, Field.Index.TOKENIZED));
-        doc.add(new Field("category", categories, Field.Store.NO, Field.Index.TOKENIZED));
-        doc.add(new Field("description", itemsRS.getString("description"), Field.Store.NO, Field.Index.TOKENIZED));
+        // Advanced keyword search (individual fields)
+        String itemID          = itemsRS.getString("itemID");
+        String itemName        = itemsRS.getString("name");
+        String itemDescription = itemsRS.getString("description");
 
-        // Basic default search
-        String fullSearchableText = itemsRS.getString("name") + " " +
-                                    itemsRS.getString("description") + " " +
+         // Basic keyword search text (union of item name, description, and its categories)
+        String fullSearchableText = itemName + " " +
+                                    itemDescription + " " +
                                     categories;
+
+        doc.add(new Field("itemID", itemID, Field.Store.YES, Field.Index.NO));
+        doc.add(new Field("name", itemName, Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("category", categories, Field.Store.NO, Field.Index.TOKENIZED));
+        doc.add(new Field("description", itemDescription, Field.Store.NO, Field.Index.TOKENIZED));
         doc.add(new Field("basicKeywords", fullSearchableText, Field.Store.NO, Field.Index.TOKENIZED));
 
         writer.addDocument(doc);
@@ -69,10 +67,10 @@ public class Indexer {
         // create a connection to the database to retrieve Items from MySQL
         try {
             conn = DbManager.getConnection(true);
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             System.out.println(ex);
         }
-
 
         /*
          * Add your code here to retrieve Items using the connection
@@ -94,50 +92,44 @@ public class Indexer {
          */
 
         try {
-            Statement s1 = conn.createStatement(); // Items table
-            Statement s2 = conn.createStatement(); // Categories table
-
-            // Begin indexing...
-            debug("Starting to index...");
+            Statement s_items = conn.createStatement();      // Items table
+            Statement s_categories = conn.createStatement(); // Categories table
 
             // Open indexWriter
             getIndexWriter(true);
 
-            debug("Lucene indexing of keywords...");
-
             // SQL SELECT statements to obtain the tuples
-            ResultSet itemsRS = s1.executeQuery("SELECT itemID, name, description FROM Items ORDER BY itemID");
-            ResultSet categoriesRS = s2.executeQuery("SELECT * FROM Categories ORDER BY itemID");
+            ResultSet itemsRS = s_items.executeQuery("SELECT itemID, name, description FROM Items");
+            ResultSet categoriesRS = s_categories.executeQuery("SELECT * FROM Categories");
 
-            // Concatenate all of the categories into one string for easy lucene indexing
-            HashMap<Integer, String> combinedCategories = new HashMap<Integer, String>();
+            // Concatenate all of the categories of a particular item into a single string
+            // (to eliminate duplicate itemID tuples)
+            HashMap<Integer, String> allCategories = new HashMap<Integer,String>();
             while (categoriesRS.next()) {
                 int id = categoriesRS.getInt("itemID");
                 String currentCategory = categoriesRS.getString("category");
-               
-                // If there is already an id key in the Hashmap, append the current category 
-                if (combinedCategories.containsKey(id)) {
-                    combinedCategories.put(id, combinedCategories.get(id) + " " +
-                        currentCategory);
+
+                // Add the {itemID => category} key-value pair into the HashMap
+                // If there is a key-collision, append the new category onto the
+                // existing category string value
+                if (!allCategories.containsKey(id)) {
+                    allCategories.put(id, currentCategory);
                 }
-                // If the id is not in the HashMap, add the current id and category into the HashMap
                 else {
-                    combinedCategories.put(id, currentCategory);
+                    allCategories.put(id, allCategories.get(id) + " " + currentCategory);
                 }
-                        
             }
 
             // Index the items with their corresponding categories
             while (itemsRS.next()) {
-                indexKeywords(itemsRS, combinedCategories.get(itemsRS.getInt("itemId")));
+                indexKeywords(itemsRS, allCategories.get(itemsRS.getInt("itemID")));
             }
 
+            itemsRS.close();
+            categoriesRS.close();
 
             // Close indexWriter
             closeIndexWriter();
-            
-            itemsRS.close();
-            categoriesRS.close();
         }
         catch (SQLException ex) {
             System.out.println("SQLException caught");
@@ -158,7 +150,8 @@ public class Indexer {
         // close the database connection
         try {
             conn.close();
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex) {
             System.out.println(ex);
         }
     }
