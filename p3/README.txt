@@ -1,6 +1,6 @@
 
 CS 144 - Fall '12
-Project 3
+Project 3 - Part A
 
 Partners:
     * Samuel Jun (003-955-212 - samuel.h.jun@gmail.com)
@@ -23,7 +23,7 @@ Part A.2 - Decide Indices to Create
 
         Items.name + Categories.categories + Items.description
 
-    The MYSQL indices are used for the advanced search function. The first three
+    The MySQL indices are used for the advanced search function. The first three
     indices of the Lucene indices are also for the advanced search function. The
     fourth and last index is used for the basic search function.
     Please note that the second Lucene index is a concatenation of all the
