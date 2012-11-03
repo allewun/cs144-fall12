@@ -24,7 +24,7 @@ public class Indexer {
 
     public IndexWriter getIndexWriter(boolean create) throws IOException {
         if (indexWriter == null) {
-            String indexPath = System.getenv("LUCENE_INDEX") + "/index1";
+            String indexPath = System.getenv("LUCENE_INDEX") + "/project3_index";
             indexWriter = new IndexWriter(indexPath, new StandardAnalyzer(), create);
         }
 
