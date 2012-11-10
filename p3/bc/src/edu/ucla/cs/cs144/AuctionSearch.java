@@ -200,8 +200,33 @@ public class AuctionSearch implements IAuctionSearch {
     }
 
     public String getXMLDataForItemId(String itemId) {
-        // TODO: Your code here!
-        return null;
+        /*
+<Item ItemID="">
+    <Name</Name>
+    <Category></Category> (+)
+    <Currently></Currently>
+    <Buy_Price></Buy_Price> (?)
+    <First_Bid></First_Bid>
+    <Number_of_Bids></Number_of_Bids>
+    <Bids>
+        <Bid> (*)
+            <Bidder UserID="" Rating="">
+                <Location></Location> (?)
+                <Country></Country> (?)
+            </Bidder>
+            <Time></Time>
+            <Amount></Amount>
+        </Bid>
+    </Bids>
+    <Location></Location>
+    <Country></Country>
+    <Started></Started>
+    <Ends></Ends>
+    <Seller UserID="" Rating="" />
+    <Description></Description>
+</Item>
+        */
+
     }
 
     public String echo(String message) {
