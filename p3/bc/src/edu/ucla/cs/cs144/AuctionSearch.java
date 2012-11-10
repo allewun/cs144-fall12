@@ -7,6 +7,11 @@ import java.sql.Statement;
 
 import java.io.IOException;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -46,24 +51,20 @@ public class AuctionSearch implements IAuctionSearch {
      *
      */
 
+    private IndexSearcher searcher = null;
+    private QueryParser parser = null;
+    private String message = "";
+
     public AuctionSearch(){
         try {
             searcher = new IndexSearcher(System.getenv("LUCENE_INDEX") + "/project3_index");
-            parser = new QueryParser("name", new StandardAnalyzer());
         }
-        catch (IOException e) {
-            System.out.println(e);
-        }
-        finally {
-            System.out.println("uh oh");
-        }
+        catch (IOException e) {}
     }
 
-    private IndexSearcher searcher = null;
-    private QueryParser parser = null;
-    private String message = "testing";
+    public Hits performSearch(String queryString, String field) throws IOException, ParseException {
+        parser = new QueryParser(field, new StandardAnalyzer());
 
-    public Hits performSearch(String queryString) throws IOException, ParseException {
         Query query = parser.parse(queryString);
         Hits hits = searcher.search(query);
 
@@ -74,7 +75,7 @@ public class AuctionSearch implements IAuctionSearch {
         SearchResult[] searchResults = null;
 
         try {
-            Hits hits = performSearch(query);
+            Hits hits = performSearch(query, "basicKeywords");
 
             int indexStart = numResultsToSkip;
             int indexEnd   = Math.min(hits.length(), numResultsToReturn);
@@ -99,10 +100,103 @@ public class AuctionSearch implements IAuctionSearch {
         return searchResults;
     }
 
-    public SearchResult[] advancedSearch(SearchConstraint[] constraints,
-            int numResultsToSkip, int numResultsToReturn) {
-        // TODO: Your code here!
-        return new SearchResult[0];
+    public SearchResult[] advancedSearch(SearchConstraint[] constraints, int numResultsToSkip, int numResultsToReturn) {
+        SearchResult[] searchResults = null;
+
+        try {
+            Connection conn = DbManager.getConnection(true);
+            Statement s = conn.createStatement();
+
+            int numConstraints = constraints.length;
+
+            Map<String,String> mysqlHash = new HashMap<String,String>();
+            mysqlHash.put(FieldName.SellerId, "SELECT itemID FROM Items WHERE sellerID = ");
+            mysqlHash.put(FieldName.BuyPrice, "SELECT itemID FROM Items WHERE buy_price = ");
+            mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Users WHERE userID = ");
+            mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Users WHERE ends = ");
+
+
+            // hits for each of the constraints
+            Hits[] hitsArray = new Hits[numConstraints];
+
+            // results sets for each for the constraints
+            Set[] setsArray = new Set[numConstraints];
+
+            // for each constraint
+            for (int i = 0; i < numConstraints; ++i) {
+                SearchConstraint constraint = constraints[i];
+                String constraintType = constraint.getFieldName();
+                String constraintValue = constraint.getValue();
+                Set<String> constraintSet = new HashSet<String>();
+
+                // fields that require MySQL
+                if (mysqlHash.get(constraint.getFieldName()) != null) {
+
+                    try {
+                        String mysqlQuery = mysqlHash.get(constraintType) + constraintValue;
+                        ResultSet rs = s.executeQuery(mysqlQuery);
+
+                        while (rs.next()) {
+                            String id = rs.getString("itemID");
+                            constraintSet.add(id);
+                        }
+                    }
+                    catch (SQLException e) {}
+                }
+
+                // fields that use Lucene index
+                else {
+                    try {
+                        Hits constraintHits = performSearch(constraintValue, constraintType);
+                        for (int j = 0; j < constraintHits.length(); ++i) {
+                            Document doc = constraintHits.doc(j);
+
+                            constraintSet.add(doc.get("itemID"));
+                        }
+                    }
+                    catch (IOException e) {}
+                    catch (ParseException e) {}
+                }
+
+                setsArray[i] = constraintSet;
+            }
+
+            // retain the itemIDs in the intersection of all the sets
+            for (int i = 1; i < numConstraints; ++i) {
+                setsArray[0].retainAll(setsArray[i]);
+            }
+
+            // construct the final resulting array
+            Set<String> resultSet = setsArray[0];
+            searchResults = new SearchResult[resultSet.size()];
+            int i = 0;
+
+            for (String itemId : resultSet) {
+                String retrieveNameFromId = "SELECT name FROM Items WHERE itemID = " + itemId;
+                ResultSet rs = s.executeQuery(retrieveNameFromId);
+
+                if (rs.next()) {
+                    searchResults[i] = new SearchResult(itemId, rs.getString("name"));
+                }
+
+                i++;
+            }
+
+            conn.close();
+        }
+        catch (SQLException ex) {
+            System.out.println("SQLException caught");
+            System.out.println("---");
+            while ( ex != null ){
+                System.out.println("Message   : " + ex.getMessage());
+                System.out.println("SQLState  : " + ex.getSQLState());
+                System.out.println("ErrorCode : " + ex.getErrorCode());
+                System.out.println("---");
+                ex = ex.getNextException();
+            }
+        }
+
+        return searchResults;
     }
 
     public String getXMLDataForItemId(String itemId) {
