@@ -71,14 +71,22 @@ public class AuctionSearch implements IAuctionSearch {
     }
 
     public SearchResult[] basicSearch(String query, int numResultsToSkip, int numResultsToReturn) {
+        SearchResult[] searchResults = null;
+
         try {
             Hits hits = performSearch(query);
 
-            for (int i = 0; i < hits.length(); ++i) {
+            int indexStart = numResultsToSkip;
+            int indexEnd   = Math.min(hits.length(), numResultsToReturn);
+
+            searchResults = new SearchResult[indexEnd - indexStart];
+
+            for (int i = indexStart; i < indexEnd; ++i) {
                 Document doc = hits.doc(i);
                 String itemID = doc.get("itemID");
+                String name = doc.get("name");
 
-                System.out.println(itemID);
+                searchResults[i] = new SearchResult(itemID, name);
             }
         }
         catch (IOException e) {
@@ -88,7 +96,7 @@ public class AuctionSearch implements IAuctionSearch {
             System.out.println(e);
         }
 
-        return new SearchResult[0];
+        return searchResults;
     }
 
     public SearchResult[] advancedSearch(SearchConstraint[] constraints,
