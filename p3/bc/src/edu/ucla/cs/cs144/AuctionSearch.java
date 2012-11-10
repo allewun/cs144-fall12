@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.io.IOException;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -44,9 +46,48 @@ public class AuctionSearch implements IAuctionSearch {
      *
      */
 
-    public SearchResult[] basicSearch(String query, int numResultsToSkip,
-            int numResultsToReturn) {
-        // TODO: Your code here!
+    public AuctionSearch(){
+        try {
+            searcher = new IndexSearcher(System.getenv("LUCENE_INDEX") + "/project3_index");
+            parser = new QueryParser("name", new StandardAnalyzer());
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+        finally {
+            System.out.println("uh oh");
+        }
+    }
+
+    private IndexSearcher searcher = null;
+    private QueryParser parser = null;
+    private String message = "testing";
+
+    public Hits performSearch(String queryString) throws IOException, ParseException {
+        Query query = parser.parse(queryString);
+        Hits hits = searcher.search(query);
+
+        return hits;
+    }
+
+    public SearchResult[] basicSearch(String query, int numResultsToSkip, int numResultsToReturn) {
+        try {
+            Hits hits = performSearch(query);
+
+            for (int i = 0; i < hits.length(); ++i) {
+                Document doc = hits.doc(i);
+                String itemID = doc.get("itemID");
+
+                System.out.println(itemID);
+            }
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+        catch (ParseException e) {
+            System.out.println(e);
+        }
+
         return new SearchResult[0];
     }
 
