@@ -62,7 +62,7 @@ public class AuctionSearch implements IAuctionSearch {
         catch (IOException e) {}
     }
 
-    public Hits performSearch(String queryString, String field) throws IOException, ParseException {
+    public Hits performSearch(String field, String queryString) throws IOException, ParseException {
         parser = new QueryParser(field, new StandardAnalyzer());
 
         Query query = parser.parse(queryString);
@@ -75,7 +75,7 @@ public class AuctionSearch implements IAuctionSearch {
         SearchResult[] searchResults = null;
 
         try {
-            Hits hits = performSearch(query, "basicKeywords");
+            Hits hits = performSearch("basicKeywords", query);
 
             int indexStart = numResultsToSkip;
             int indexEnd   = Math.min(hits.length(), numResultsToReturn);
@@ -147,7 +147,7 @@ public class AuctionSearch implements IAuctionSearch {
                 // fields that use Lucene index
                 else {
                     try {
-                        Hits constraintHits = performSearch(constraintValue, constraintType);
+                        Hits constraintHits = performSearch(constraintType, constraintValue);
                         for (int j = 0; j < constraintHits.length(); ++i) {
                             Document doc = constraintHits.doc(j);
 
