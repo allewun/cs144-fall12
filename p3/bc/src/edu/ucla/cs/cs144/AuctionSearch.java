@@ -80,17 +80,19 @@ public class AuctionSearch implements IAuctionSearch {
         try {
             Hits hits = performSearch("basicKeywords", query);
 
-            int indexStart = numResultsToSkip;
-            int indexEnd   = Math.min(hits.length(), numResultsToReturn);
+            if (numResultsToSkip <= hits.length()) {
+                int indexStart = numResultsToSkip;
+                int indexEnd   = Math.min(hits.length(), numResultsToSkip + numResultsToReturn);
 
-            searchResults = new SearchResult[indexEnd - indexStart];
+                searchResults = new SearchResult[indexEnd - indexStart];
 
-            for (int i = indexStart; i < indexEnd; ++i) {
-                Document doc = hits.doc(i);
-                String itemID = doc.get("itemID");
-                String name = doc.get("name");
+                for (int i = indexStart; i < indexEnd; ++i) {
+                    Document doc = hits.doc(i);
+                    String itemID = doc.get("itemID");
+                    String name = doc.get("name");
 
-                searchResults[i] = new SearchResult(itemID, name);
+                    searchResults[i - indexStart] = new SearchResult(itemID, name);
+                }
             }
         }
         catch (IOException e) {
@@ -171,17 +173,21 @@ public class AuctionSearch implements IAuctionSearch {
 
             // construct the final resulting array
             Object[] resultsArray = new ArrayList<String>(setsArray[0]).toArray();
-            int indexStart = numResultsToSkip;
-            int indexEnd   = Math.min(resultsArray.length, numResultsToReturn);
-            searchResults = new SearchResult[indexEnd - indexStart];
 
-            for (int i = indexStart; i < indexEnd; ++i) {
-                String itemId = resultsArray[i].toString();
-                String retrieveNameFromId = "SELECT name FROM Items WHERE itemID = " + itemId;
-                ResultSet rs = s.executeQuery(retrieveNameFromId);
+            if (numResultsToSkip <= resultsArray.length) {
+                int indexStart = numResultsToSkip;
+                int indexEnd   = Math.min(resultsArray.length, numResultsToSkip + numResultsToReturn);
 
-                if (rs.next()) {
-                    searchResults[i] = new SearchResult(itemId, rs.getString("name"));
+                searchResults = new SearchResult[indexEnd - indexStart];
+
+                for (int i = indexStart; i < indexEnd; ++i) {
+                    String itemId = resultsArray[i].toString();
+                    String retrieveNameFromId = "SELECT name FROM Items WHERE itemID = " + itemId;
+                    ResultSet rs = s.executeQuery(retrieveNameFromId);
+
+                    if (rs.next()) {
+                        searchResults[i - indexStart] = new SearchResult(itemId, rs.getString("name"));
+                    }
                 }
             }
 
