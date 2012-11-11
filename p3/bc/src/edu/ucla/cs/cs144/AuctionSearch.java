@@ -209,13 +209,13 @@ public class AuctionSearch implements IAuctionSearch {
     }
 
     private String escapeXMLText(String text) {
-        String result1 = text.replaceAll("\"", "&quot;");
-        String result2 = result1.replaceAll("\'", "&apos;");
-        String result3 = result2.replaceAll("&", "&amp;");
-        String result4 = result3.replaceAll("<", "&lt;");
-        String result5 = result4.replaceAll(">", "&gt;");
+        text = text.replaceAll("&", "&amp;");
+        text = text.replaceAll("\"", "&quot;");
+        text = text.replaceAll("\'", "&apos;");
+        text = text.replaceAll("<", "&lt;");
+        text = text.replaceAll(">", "&gt;");
 
-        return result5;
+        return text; 
     }
 
     private String formatDate(String text) {
@@ -336,8 +336,10 @@ public class AuctionSearch implements IAuctionSearch {
                 xmlResult.append("  <Description>" + escapedDescription + "</Description>\n"); // <Description></Description>
             }
             else {
-                xmlResult.append("  <Description/>"); // <Description/>
+                xmlResult.append("  <Description/>\n"); // <Description/>
             }
+
+            xmlResult.append("</Item>\n");
         }
         catch (SQLException ex) {
             System.out.println("SQLException caught");
