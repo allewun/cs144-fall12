@@ -35,9 +35,13 @@ public class AuctionSearchTest {
             System.out.println(result.getItemId() + ": " + result.getName());
         }
 
-        String itemId;
-        String item;
+        String itemId = "1497595357";
+        String item = as.getXMLDataForItemId(itemId);
+        System.out.println("XML data for ItemId: " + itemId);
+        System.out.println(item);
 
+
+        // Add your own test here
         System.out.println("==========");
         itemId = "1045523926";
         item = as.getXMLDataForItemId(itemId);
@@ -45,11 +49,6 @@ public class AuctionSearchTest {
         System.out.println(item);
 
         System.out.println("==========");
-        itemId = "1497595357";
-        item = as.getXMLDataForItemId(itemId);
-        System.out.println("XML data for ItemId: " + itemId);
-        System.out.println(item);
-
         System.out.println("==========");
         itemId = "1045524027";
         item = as.getXMLDataForItemId(itemId);
@@ -58,6 +57,6 @@ public class AuctionSearchTest {
 
 
 
-        // Add your own test here
+
     }
 }
