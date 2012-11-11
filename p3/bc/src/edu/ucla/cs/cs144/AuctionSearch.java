@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -55,7 +56,7 @@ public class AuctionSearch implements IAuctionSearch {
     private QueryParser parser = null;
     private String message = "";
 
-    public AuctionSearch(){
+    public AuctionSearch() {
         try {
             searcher = new IndexSearcher(System.getenv("LUCENE_INDEX") + "/project3_index");
         }
@@ -202,7 +203,7 @@ public class AuctionSearch implements IAuctionSearch {
     public String getXMLDataForItemId(String itemId) {
         /*
 <Item ItemID="">
-    <Name</Name>
+    <Name></Name>
     <Category></Category> (+)
     <Currently></Currently>
     <Buy_Price></Buy_Price> (?)
@@ -227,6 +228,91 @@ public class AuctionSearch implements IAuctionSearch {
 </Item>
         */
 
+        StringBuilder xmlResult = new StringBuilder();
+
+        try {
+            Connection conn = DbManager.getConnection(true);
+            Statement s1 = conn.createStatement();
+            Statement s2 = conn.createStatement();
+            Statement s3 = conn.createStatement();
+            Statement s4 = conn.createStatement();
+
+            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); // <Item ItemID="">
+
+            // Execute SQL queries for the item
+            ResultSet itemsRS = s1.executeQuery("SELECT * FROM Items WHERE ItemID = " + itemId);
+            ResultSet bidsRS = s2.executeQuery("SELECT * FROM Bids WHERE ItemID = " + itemId);
+            ResultSet categoriesRS = s3.executeQuery("SELECT * FROM Categories WHERE ItemID = " + itemId);
+            // Get the location and country for all of the bidders
+            ArrayList<String> bidders = new ArrayList<String>();
+            while (bidsRS.next()) {
+                bidders.add(bidsRS.getString("userID"));
+            }
+            boolean bidsExist = false;
+            ResultSet usersRS = null;
+            if (bidders.size() > 0) {
+                String usersQuery = "SELECT * FROM Users WHERE userID = " + bidders.get(0);
+                for (int i = 1; i < bidders.size(); i++) {
+                    usersQuery = usersQuery + "OR userID = " + bidders.get(i);
+                }
+                usersRS = s4.executeQuery(usersQuery);
+            }
+
+            itemsRS.next();
+            String name = itemsRS.getString("name");
+            xmlResult.append("  <Name>" + name + "</Name>\n"); // <Name></Name>
+
+            while (categoriesRS.next()) {
+                String currentCategory = categoriesRS.getString("category");
+                xmlResult.append("  <Category>" + currentCategory + "</Category>\n"); // <Category></Category>
+            }
+
+            String currently = itemsRS.getString("currently");
+            xmlResult.append("  <Currently>" + currently + "</Currently>\n"); // <Currently></Currently>
+
+            String buy_price = itemsRS.getString("buy_price");
+            if (buy_price != null) {
+                xmlResult.append("  <Buy_Price>" + buy_price + "</Buy_Price>\n"); // <Buy_Price></Buy_Price>
+            }
+            String first_bid = itemsRS.getString("first_bid");
+            xmlResult.append("  <First_Bid>" + first_bid + "</First_Bid>\n"); // <First_Bid></First_Bid>
+
+            String num_of_bids = itemsRS.getString("num_of_bids");
+            xmlResult.append("  <Number_of_Bids>" + num_of_bids + "</Number_of_Bids>\n"); // <Number_of_Bids></Number_of_Bids>
+
+            if (bidsExist) {
+                while (usersRS.next()) {
+                    xmlResult.append("  <Bids>\n"); // <Bids>
+                    xmlResult.append("    <Bid>\n"); // <Bid>
+                    String userID = usersRS.getString("userID");
+                    String rating = usersRS.getString("rating");
+                    String location = usersRS.getString("location");
+                    String country = usersRS.getString("country");
+                    xmlResult.append("      <Bidder UserID=\"" + userID + "\" Rating=\"" + rating + "\">\n"); // <Bidder UserID="" Rating="">
+                    xmlResult.append("        <Location>" + location + "</Location>\n"); // <Location></Location>
+                    xmlResult.append("        <Country>" + country + "</Country>\n"); // <Country></Country>
+                    xmlResult.append("      </Bidder>\n"); // </Bidder>
+                    
+                    Statement currentBidStatement = conn.createStatement();
+                    // Time
+                    // Amount
+                }
+            }
+            xmlResult.append("  </Bids>"); // </Bids>
+        }
+        catch (SQLException ex) {
+            System.out.println("SQLException caught");
+            System.out.println("---");
+            while ( ex != null ){
+                System.out.println("Message   : " + ex.getMessage());
+                System.out.println("SQLState  : " + ex.getSQLState());
+                System.out.println("ErrorCode : " + ex.getErrorCode());
+                System.out.println("---");
+                ex = ex.getNextException();
+            }
+        }
+
+        return xmlResult.toString();
     }
 
     public String echo(String message) {
