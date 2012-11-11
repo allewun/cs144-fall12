@@ -138,6 +138,10 @@ public class AuctionSearch implements IAuctionSearch {
                 if (mysqlHash.get(constraint.getFieldName()) != null) {
 
                     try {
+                        if (constraintType.equals(FieldName.EndTime)) {
+                            constraintValue = formatDateXMLtoSQL(constraintValue);
+                        }
+
                         String mysqlQuery = mysqlHash.get(constraintType) + "\"" + constraintValue + "\"";
                         ResultSet rs = s.executeQuery(mysqlQuery);
 
@@ -229,6 +233,25 @@ public class AuctionSearch implements IAuctionSearch {
             dateFormat.applyPattern("MMM-dd-yy HH:mm:ss");
             formattedText = dateFormat.format(formatted);
             dateFormat.applyPattern("yyyy-MM-dd HH:mm:ss");
+        }
+        catch (java.text.ParseException pe) {
+            System.out.println("ERROR: Cannot parse dates");
+        }
+
+        return formattedText;
+    }
+
+    private String formatDateXMLtoSQL(String text) {
+        String formattedText = text;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+
+        // Parse the date
+        try {
+            Date formatted = dateFormat.parse(text);
+
+            dateFormat.applyPattern("yyyy-MM-dd HH:mm:ss");
+            formattedText = dateFormat.format(formatted);
+            dateFormat.applyPattern("MMM-dd-yy HH:mm:ss");
         }
         catch (java.text.ParseException pe) {
             System.out.println("ERROR: Cannot parse dates");
