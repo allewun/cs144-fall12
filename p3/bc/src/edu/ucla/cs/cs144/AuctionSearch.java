@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -169,19 +170,19 @@ public class AuctionSearch implements IAuctionSearch {
             }
 
             // construct the final resulting array
-            Set<String> resultSet = setsArray[0];
-            searchResults = new SearchResult[resultSet.size()];
-            int i = 0;
+            Object[] resultsArray = new ArrayList<String>(setsArray[0]).toArray();
+            int indexStart = numResultsToSkip;
+            int indexEnd   = Math.min(resultsArray.length, numResultsToReturn);
+            searchResults = new SearchResult[indexEnd - indexStart];
 
-            for (String itemId : resultSet) {
+            for (int i = indexStart; i < indexEnd; ++i) {
+                String itemId = resultsArray[i].toString();
                 String retrieveNameFromId = "SELECT name FROM Items WHERE itemID = " + itemId;
                 ResultSet rs = s.executeQuery(retrieveNameFromId);
 
                 if (rs.next()) {
                     searchResults[i] = new SearchResult(itemId, rs.getString("name"));
                 }
-
-                i++;
             }
 
             conn.close();
