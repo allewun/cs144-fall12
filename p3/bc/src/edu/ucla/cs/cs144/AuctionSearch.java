@@ -133,7 +133,7 @@ public class AuctionSearch implements IAuctionSearch {
                 if (mysqlHash.get(constraint.getFieldName()) != null) {
 
                     try {
-                        String mysqlQuery = mysqlHash.get(constraintType) + constraintValue;
+                        String mysqlQuery = mysqlHash.get(constraintType) + "\"" + constraintValue + "\"";
                         ResultSet rs = s.executeQuery(mysqlQuery);
 
                         while (rs.next()) {
