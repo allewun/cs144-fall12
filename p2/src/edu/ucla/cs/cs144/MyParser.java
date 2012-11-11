@@ -342,7 +342,7 @@ class MyParser {
                 // 6: started     TIMESTAMP NOT NULL
                 // 7: ends        TIMESTAMP NOT NULL
                 // 8: sellerID    VARCHAR(40) NOT NULL
-                // 9: description VARCHAR(4000) NOT NULL
+                // 9: description VARCHAR(4000)
 
                 String[] item = parsedItems.get(i);
 
@@ -355,7 +355,7 @@ class MyParser {
                 itemsSQL.append(formatDate(item[6]) + ",");
                 itemsSQL.append(formatDate(item[7]) + ",");
                 itemsSQL.append(escapeAndQuote(item[8]) + ",");
-                itemsSQL.append(escapeAndQuote(item[9]) + "\n");
+                itemsSQL.append(nullify(item[9], escapeAndQuote(item[9])) + "\n");
             }
 
             // Generate the INSERT statements for the Users table

@@ -240,15 +240,25 @@ public class AuctionSearch implements IAuctionSearch {
             Statement s2 = conn.createStatement();
             Statement s3 = conn.createStatement();
 
-            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); // <Item ItemID="">
+            // <Item ItemID="">
+            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); 
 
             // Execute SQL queries for the item
-            ResultSet itemsRS = s1.executeQuery("SELECT * FROM Items I, Users U WHERE ItemID = " + itemId + " AND sellerID = userID");
-            ResultSet bidsUsersRS = s2.executeQuery("SELECT * FROM Bids B, Users U WHERE ItemID = " + itemId + " AND B.userID = U.userID ORDER BY time");
-            ResultSet categoriesRS = s3.executeQuery("SELECT * FROM Categories WHERE ItemID = " + itemId);
+            ResultSet itemsRS =
+              s1.executeQuery("SELECT * FROM Items I, Users U WHERE ItemID = " +
+                              itemId + " AND sellerID = userID");
+            ResultSet bidsUsersRS =
+              s2.executeQuery("SELECT * FROM Bids B, Users U WHERE ItemID = " +
+                              itemId + " AND B.userID = U.userID ORDER BY time");
+            ResultSet categoriesRS =
+              s3.executeQuery("SELECT * FROM Categories WHERE ItemID = " + itemId + " ORDER BY category");
             
-            
-            itemsRS.next();
+            // If the SQL query for the specific itemId doesn't return anything,
+            // return an empty string.
+            if (!itemsRS.next()) {
+                return "";
+            }
+
             String name = escapeXMLText(itemsRS.getString("name"));
             xmlResult.append("  <Name>" + name + "</Name>\n"); // <Name></Name>
 
@@ -288,10 +298,15 @@ public class AuctionSearch implements IAuctionSearch {
                 xmlResult.append("        <Country>" + country + "</Country>\n"); // <Country></Country>
                 xmlResult.append("      </Bidder>\n"); // </Bidder>
                 xmlResult.append("      <Time>" + time + "</Time>\n"); // <Time></Time>
-                xmlResult.append("      <Amount>$" + amount + "</amount>\n"); // <Amount></Amount>
+                xmlResult.append("      <Amount>$" + amount + "</Amount>\n"); // <Amount></Amount>
                 xmlResult.append("    </Bid>\n");  // </Bid>
             }
-            xmlResult.append("  </Bids>\n"); // </Bids>
+            if (bidInitialized) {
+                xmlResult.append("  </Bids>\n"); // </Bids>
+            }
+            else {
+                xmlResult.append("  <Bids/>\n"); // <Bids/>
+            }
 
             String location = itemsRS.getString("location");
             xmlResult.append("  <Location>" + location + "</Location>\n"); // <Location></Location>
@@ -303,14 +318,20 @@ public class AuctionSearch implements IAuctionSearch {
             xmlResult.append("  <Started>" + started + "</Started>\n"); // <Stared></Started>
 
             String ends = formatDate(itemsRS.getString("ends"));
-            xmlResult.append("  <Ends>" + ends + "</Ends>\n");
+            xmlResult.append("  <Ends>" + ends + "</Ends>\n"); // <Ends></Ends>
 
             String sellerUserID = itemsRS.getString("I.sellerID");
             String sellerRating = itemsRS.getString("rating");
-            xmlResult.append("  <Seller UserID=\"" + sellerUserID + "\" Rating =\"" + sellerRating + "\"/>\n");
+            xmlResult.append("  <Seller UserID=\"" + sellerUserID + "\" Rating=\"" + sellerRating + "\"/>\n"); // <Seller UserID="" Rating=""/>
 
             String description = itemsRS.getString("description");
-            xmlResult.append("  <Description>" + description + "</Description>\n");
+            if (description != null) {
+                String escapedDescription = escapeXMLText(description);
+                xmlResult.append("  <Description>" + escapedDescription + "</Description>\n"); // <Description></Description>
+            }
+            else {
+                xmlResult.append("  <Description/>"); // <Description/>
+            }
         }
         catch (SQLException ex) {
             System.out.println("SQLException caught");
