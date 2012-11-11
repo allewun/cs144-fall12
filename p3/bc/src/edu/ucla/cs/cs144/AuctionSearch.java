@@ -150,7 +150,7 @@ public class AuctionSearch implements IAuctionSearch {
                 else {
                     try {
                         Hits constraintHits = performSearch(constraintType, constraintValue);
-                        for (int j = 0; j < constraintHits.length(); ++i) {
+                        for (int j = 0; j < constraintHits.length(); ++j) {
                             Document doc = constraintHits.doc(j);
 
                             constraintSet.add(doc.get("itemID"));
