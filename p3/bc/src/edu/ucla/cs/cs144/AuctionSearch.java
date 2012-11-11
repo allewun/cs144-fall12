@@ -246,9 +246,6 @@ public class AuctionSearch implements IAuctionSearch {
             Statement s2 = conn.createStatement();
             Statement s3 = conn.createStatement();
 
-            // <Item ItemID="">
-            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); 
-
             // Execute SQL queries for the item
             ResultSet itemsRS =
               s1.executeQuery("SELECT * FROM Items I, Users U WHERE ItemID = " +
@@ -264,6 +261,9 @@ public class AuctionSearch implements IAuctionSearch {
             if (!itemsRS.next()) {
                 return "";
             }
+
+            // <Item ItemID="">
+            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); 
 
             String name = escapeXMLText(itemsRS.getString("name"));
             xmlResult.append("  <Name>" + name + "</Name>\n"); // <Name></Name>
@@ -339,10 +339,10 @@ public class AuctionSearch implements IAuctionSearch {
                 xmlResult.append("  <Description/>\n"); // <Description/>
             }
 
-            xmlResult.append("</Item>\n");
+            xmlResult.append("</Item>");
         }
         catch (SQLException ex) {
-            System.out.println("SQLException caught");
+            /* System.out.println("SQLException caught");
             System.out.println("---");
             while ( ex != null ){
                 System.out.println("Message   : " + ex.getMessage());
@@ -350,7 +350,7 @@ public class AuctionSearch implements IAuctionSearch {
                 System.out.println("ErrorCode : " + ex.getErrorCode());
                 System.out.println("---");
                 ex = ex.getNextException();
-            }
+            } */
         }
 
         return xmlResult.toString();
