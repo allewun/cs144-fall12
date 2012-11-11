@@ -41,17 +41,52 @@ public class AuctionSearchTest {
 		System.out.println(item);
 
 		// Add your own test here
+		System.out.println("==Testing getXMLDataForItemId==");
+
+		// Basic
 		itemId = "1045524027";
 		item = as.getXMLDataForItemId(itemId);
 		System.out.println("XML data for ItemId: " + itemId);
 		System.out.println(item);
 
+		// No bids or description
 		itemId = "1497595357";
 		item = as.getXMLDataForItemId(itemId);
 		System.out.println("XML data for ItemId: " + itemId);
 		System.out.println(item);
 
+		// Javascript code in the description
 		itemId = "1497597033";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+
+		// & sign in the name
+		itemId = "1045710634";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+
+		// No matching item Id
+		itemId = "10";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+
+		// Blank item Id
+		itemId = "";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+		
+		// Random characters in item Id
+		itemId = "&)_!^k,j,";
+		item = as.getXMLDataForItemId(itemId);
+		System.out.println("XML data for ItemId: " + itemId);
+		System.out.println(item);
+
+		// Buy_Price
+		itemId = "1043608482";
 		item = as.getXMLDataForItemId(itemId);
 		System.out.println("XML data for ItemId: " + itemId);
 		System.out.println(item);
