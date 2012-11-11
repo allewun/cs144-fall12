@@ -10,7 +10,7 @@ CREATE TABLE Items (
   started     TIMESTAMP NOT NULL,
   ends        TIMESTAMP NOT NULL,
   sellerID    VARCHAR(40) NOT NULL,
-  description VARCHAR(4000) NOT NULL
+  description VARCHAR(4000)
   -- FOREIGN KEY (sellerID) REFERENCES Users(userID)
 );
 
