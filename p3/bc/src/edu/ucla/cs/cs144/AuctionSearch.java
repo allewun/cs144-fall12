@@ -112,8 +112,8 @@ public class AuctionSearch implements IAuctionSearch {
             Map<String,String> mysqlHash = new HashMap<String,String>();
             mysqlHash.put(FieldName.SellerId, "SELECT itemID FROM Items WHERE sellerID = ");
             mysqlHash.put(FieldName.BuyPrice, "SELECT itemID FROM Items WHERE buy_price = ");
-            mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Users WHERE userID = ");
-            mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Users WHERE ends = ");
+            mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Bids WHERE userID = ");
+            mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Items WHERE ends = ");
 
 
             // hits for each of the constraints
