@@ -88,8 +88,8 @@ public class AuctionSearch implements IAuctionSearch {
 
                 for (int i = indexStart; i < indexEnd; ++i) {
                     Document doc = hits.doc(i);
-                    String itemID = doc.get(FieldName.ItemId);
-                    String name = doc.get(FieldName.ItemName);
+                    String itemID = doc.get("itemID");
+                    String name = doc.get("name");
 
                     searchResults[i - indexStart] = new SearchResult(itemID, name);
                 }
@@ -122,7 +122,6 @@ public class AuctionSearch implements IAuctionSearch {
             mysqlHash.put(FieldName.BuyPrice, "SELECT itemID FROM Items WHERE buy_price = ");
             mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Bids WHERE userID = ");
             mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Items WHERE ends = ");
-            mysqlHash.put("BuyPrice",  "SELECT itemID FROM Items WHERE buy_price = "); // hacky solution for improper testing in grading script
 
             // results sets for each for the constraints
             Set<String>[] setsArray = new Set[numConstraints];
@@ -141,16 +140,12 @@ public class AuctionSearch implements IAuctionSearch {
                         if (constraintType.equals(FieldName.EndTime)) {
                             constraintValue = formatDateXMLtoSQL(constraintValue);
                         }
-                        // hacky solution for improper testing in grading script
-                        if (constraintType.equals("BuyPrice")) {
-                            constraintType = FieldName.BuyPrice;
-                        }
 
                         String mysqlQuery = mysqlHash.get(constraintType) + "\"" + constraintValue + "\"";
                         ResultSet rs = s.executeQuery(mysqlQuery);
 
                         while (rs.next()) {
-                            String id = rs.getString(FieldName.ItemId);
+                            String id = rs.getString("itemID");
                             constraintSet.add(id);
                         }
                     }
@@ -163,7 +158,7 @@ public class AuctionSearch implements IAuctionSearch {
                         Hits constraintHits = performSearch(constraintType, constraintValue);
                         for (int j = 0; j < constraintHits.length(); ++j) {
                             Document doc = constraintHits.doc(j);
-                            constraintSet.add(doc.get(FieldName.ItemId));
+                            constraintSet.add(doc.get("itemID"));
                         }
                     }
                     catch (IOException e) {}
@@ -193,7 +188,7 @@ public class AuctionSearch implements IAuctionSearch {
                     ResultSet rs = s.executeQuery(retrieveNameFromId);
 
                     if (rs.next()) {
-                        searchResults[i - indexStart] = new SearchResult(itemId, rs.getString(FieldName.ItemName));
+                        searchResults[i - indexStart] = new SearchResult(itemId, rs.getString("name"));
                     }
                 }
             }
