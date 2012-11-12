@@ -80,7 +80,7 @@ public class AuctionSearch implements IAuctionSearch {
         try {
             Hits hits = performSearch("basicKeywords", query);
 
-            if (numResultsToSkip <= hits.length()) {
+            if (numResultsToSkip <= hits.length() && numResultsToSkip >= 0 && numResultsToReturn >= 0) {
                 int indexStart = numResultsToSkip;
                 int indexEnd   = Math.min(hits.length(), numResultsToSkip + numResultsToReturn);
 
@@ -93,6 +93,9 @@ public class AuctionSearch implements IAuctionSearch {
 
                     searchResults[i - indexStart] = new SearchResult(itemID, name);
                 }
+            }
+            else {
+                return new SearchResult[0];
             }
         }
         catch (IOException e) {
@@ -173,7 +176,7 @@ public class AuctionSearch implements IAuctionSearch {
             // construct the final resulting array
             Object[] resultsArray = new ArrayList<String>(setsArray[0]).toArray();
 
-            if (numResultsToSkip <= resultsArray.length) {
+            if (numResultsToSkip <= resultsArray.length && numResultsToSkip >= 0 && numResultsToReturn >= 0) {
                 int indexStart = numResultsToSkip;
                 int indexEnd   = Math.min(resultsArray.length, numResultsToSkip + numResultsToReturn);
 
@@ -188,6 +191,9 @@ public class AuctionSearch implements IAuctionSearch {
                         searchResults[i - indexStart] = new SearchResult(itemId, rs.getString(FieldName.ItemName));
                     }
                 }
+            }
+            else {
+                return new SearchResult[0];
             }
 
             conn.close();
