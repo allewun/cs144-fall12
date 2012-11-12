@@ -88,8 +88,8 @@ public class AuctionSearch implements IAuctionSearch {
 
                 for (int i = indexStart; i < indexEnd; ++i) {
                     Document doc = hits.doc(i);
-                    String itemID = doc.get("itemID");
-                    String name = doc.get("name");
+                    String itemID = doc.get(FieldName.ItemId);
+                    String name = doc.get(FieldName.ItemName);
 
                     searchResults[i - indexStart] = new SearchResult(itemID, name);
                 }
@@ -120,12 +120,8 @@ public class AuctionSearch implements IAuctionSearch {
             mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Bids WHERE userID = ");
             mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Items WHERE ends = ");
 
-
-            // hits for each of the constraints
-            Hits[] hitsArray = new Hits[numConstraints];
-
             // results sets for each for the constraints
-            Set[] setsArray = new Set[numConstraints];
+            Set<String>[] setsArray = new Set[numConstraints];
 
             // for each constraint
             for (int i = 0; i < numConstraints; ++i) {
@@ -135,7 +131,7 @@ public class AuctionSearch implements IAuctionSearch {
                 Set<String> constraintSet = new HashSet<String>();
 
                 // fields that require MySQL
-                if (mysqlHash.get(constraint.getFieldName()) != null) {
+                if (mysqlHash.get(constraintType) != null) {
 
                     try {
                         if (constraintType.equals(FieldName.EndTime)) {
@@ -146,7 +142,7 @@ public class AuctionSearch implements IAuctionSearch {
                         ResultSet rs = s.executeQuery(mysqlQuery);
 
                         while (rs.next()) {
-                            String id = rs.getString("itemID");
+                            String id = rs.getString(FieldName.ItemId);
                             constraintSet.add(id);
                         }
                     }
@@ -159,8 +155,7 @@ public class AuctionSearch implements IAuctionSearch {
                         Hits constraintHits = performSearch(constraintType, constraintValue);
                         for (int j = 0; j < constraintHits.length(); ++j) {
                             Document doc = constraintHits.doc(j);
-
-                            constraintSet.add(doc.get("itemID"));
+                            constraintSet.add(doc.get(FieldName.ItemId));
                         }
                     }
                     catch (IOException e) {}
@@ -190,7 +185,7 @@ public class AuctionSearch implements IAuctionSearch {
                     ResultSet rs = s.executeQuery(retrieveNameFromId);
 
                     if (rs.next()) {
-                        searchResults[i - indexStart] = new SearchResult(itemId, rs.getString("name"));
+                        searchResults[i - indexStart] = new SearchResult(itemId, rs.getString(FieldName.ItemName));
                     }
                 }
             }
@@ -219,7 +214,7 @@ public class AuctionSearch implements IAuctionSearch {
         text = text.replaceAll("<", "&lt;");
         text = text.replaceAll(">", "&gt;");
 
-        return text; 
+        return text;
     }
 
     private String formatDate(String text) {
@@ -278,7 +273,7 @@ public class AuctionSearch implements IAuctionSearch {
                               itemId + " AND B.userID = U.userID ORDER BY time");
             ResultSet categoriesRS =
               s3.executeQuery("SELECT * FROM Categories WHERE ItemID = " + itemId + " ORDER BY category");
-            
+
             // If the SQL query for the specific itemId doesn't return anything,
             // return an empty string.
             if (!itemsRS.next()) {
@@ -286,7 +281,7 @@ public class AuctionSearch implements IAuctionSearch {
             }
 
             // <Item ItemID="">
-            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n"); 
+            xmlResult.append("<Item ItemID=\"" + itemId + "\">\n");
 
             String name = escapeXMLText(itemsRS.getString("name"));
             xmlResult.append("  <Name>" + name + "</Name>\n"); // <Name></Name>
