@@ -122,7 +122,7 @@ public class AuctionSearch implements IAuctionSearch {
             mysqlHash.put(FieldName.BuyPrice, "SELECT itemID FROM Items WHERE buy_price = ");
             mysqlHash.put(FieldName.BidderId, "SELECT itemID FROM Bids WHERE userID = ");
             mysqlHash.put(FieldName.EndTime,  "SELECT itemID FROM Items WHERE ends = ");
-            mysqlHash.put("BuyPrice",  "SELECT itemID FROM Items WHERE ends = "); // hacky solution for improper testing in grading script
+            mysqlHash.put("BuyPrice",  "SELECT itemID FROM Items WHERE buy_price = "); // hacky solution for improper testing in grading script
 
             // results sets for each for the constraints
             Set<String>[] setsArray = new Set[numConstraints];
