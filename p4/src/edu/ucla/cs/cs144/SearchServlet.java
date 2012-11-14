@@ -8,9 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
-import javax.servlet.http.HttpUtils;
-import java.util.Hashtable;
-import java.util.Enumeration;
 
 public class SearchServlet extends HttpServlet implements Servlet {
 
@@ -34,7 +31,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
         out.println("<h2>Received " + basicResults.length + " results</h2>");
         out.println("<ol>");
         for (SearchResult result : basicResults) {
-            out.println("<li>" + result.getItemId() + ": " + result.getName() + "</li>");
+            out.println("<li>" +  result.getItemId() + ": " + result.getName() + "</li>");
         }
         out.println("</ol>");
 
