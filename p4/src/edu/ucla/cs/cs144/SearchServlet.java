@@ -6,8 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
 
 public class SearchServlet extends HttpServlet implements Servlet {
 
@@ -15,28 +14,44 @@ public class SearchServlet extends HttpServlet implements Servlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        PrintWriter out = response.getWriter();
-        AuctionSearchClient as = new AuctionSearchClient();
+        try {
+            AuctionSearchClient as = new AuctionSearchClient();
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/search.jsp");
 
-        String query = request.getParameter("q");
-        int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
-        int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
-        SearchResult[] basicResults = as.basicSearch(query, numResultsToSkip, numResultsToReturn);
+            String query = request.getParameter("q");
+            int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
+            int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+            SearchResult[] basicResults = as.basicSearch(query, numResultsToSkip, numResultsToReturn);
 
-        out.println("<html>");
-        out.println("<head><title>eBay Keyword Search Results</title></head>");
-        out.println("<body>");
+            String prevLink = "/eBay/search?q=" + query +
+                              "&numResultsToSkip=" + (numResultsToSkip - numResultsToReturn) +
+                              "&numResultsToReturn=" + numResultsToReturn;
+            String nextLink = "/eBay/search?q=" + query +
+                              "&numResultsToSkip=" + (numResultsToSkip + numResultsToReturn) +
+                              "&numResultsToReturn=" + numResultsToReturn;
 
-        out.println("<h1>Basic Search Query: " + query + "</h1>");
-        out.println("<h2>Received " + basicResults.length + " results</h2>");
-        out.println("<ol>");
-        for (SearchResult result : basicResults) {
-            out.println("<li>" +  result.getItemId() + ": " + result.getName() + "</li>");
+            if (basicResults.length < numResultsToReturn) {
+                nextLink = null;
+            }
+
+            if (numResultsToSkip < numResultsToReturn) {
+                prevLink = null;
+            }
+
+            request.setAttribute("prevLink", prevLink);
+            request.setAttribute("nextLink", nextLink);
+            request.setAttribute("numResults", basicResults.length);
+            request.setAttribute("basicResults", basicResults);
+
+            rd.forward(request, response);
         }
-        out.println("</ol>");
-
-        out.println("</body>");
-        out.println("</html>");
-        out.close();
+        catch (ServletException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
