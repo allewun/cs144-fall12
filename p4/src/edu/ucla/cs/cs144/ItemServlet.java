@@ -57,7 +57,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
             }
             String[] itemCategories = new String[itemCategoriesVector.size()];
             itemCategoriesVector.toArray(itemCategories);
-            //request.setAttribute("itemCategories", itemCategories);
+            request.setAttribute("itemCategories", itemCategories);
             // Item/Currently
             expr = xpath.compile("Item/Currently");
             String itemCurrently = expr.evaluate(doc);
@@ -78,7 +78,16 @@ public class ItemServlet extends HttpServlet implements Servlet {
             String itemNumberOfBids = expr.evaluate(doc);
             request.setAttribute("itemNumberOfBids", itemNumberOfBids);
             // Item/Bids
-            //
+            /* if (itemXML.contains("<Bid>") {
+                expr = xpath.compile("Item/Bids/Bid");
+                NodeList itemBidsNodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
+                Vector<String[]> itemBidsVector = new Vector<String[]();
+                for (int i = 0; i < itemBidsNodes.getLength(); i++) {
+                    NodeList currentBidChileNodes = itemBidsNodes.getChildNodes();
+                    for (int i = 0; i < current
+                    
+                }
+            } */
             // Item/Location
             expr = xpath.compile("Item/Location");
             String itemLocation = expr.evaluate(doc);
