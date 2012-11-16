@@ -18,26 +18,35 @@ public class SearchServlet extends HttpServlet implements Servlet {
             AuctionSearchClient as = new AuctionSearchClient();
             RequestDispatcher rd = getServletContext().getRequestDispatcher("/search.jsp");
 
+            // Parameter values
             String query = request.getParameter("q");
             int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
             int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+
+            // Search and store the results
             SearchResult[] basicResults = as.basicSearch(query, numResultsToSkip, numResultsToReturn);
 
-            String prevLink = "/eBay/search?q=" + query +
-                              "&numResultsToSkip=" + (numResultsToSkip - numResultsToReturn) +
-                              "&numResultsToReturn=" + numResultsToReturn;
-            String nextLink = "/eBay/search?q=" + query +
-                              "&numResultsToSkip=" + (numResultsToSkip + numResultsToReturn) +
-                              "&numResultsToReturn=" + numResultsToReturn;
+            // Previous and Next links construction
+            String urlBase = "/eBay/search?q=" + query;
+            int prevSkip = numResultsToSkip - numResultsToReturn;
+            int nextSkip = numResultsToSkip + numResultsToReturn;
+
+            if (numResultsToSkip < numResultsToReturn) {
+                prevSkip = 0;
+            }
+
+            String prevLink = urlBase + "&numResultsToSkip=" + prevSkip + "&numResultsToReturn=" + numResultsToReturn;
+            String nextLink = urlBase + "&numResultsToSkip=" + nextSkip + "&numResultsToReturn=" + numResultsToReturn;
+
+            if (numResultsToSkip == 0) {
+                prevLink = null;
+            }
 
             if (basicResults.length < numResultsToReturn) {
                 nextLink = null;
             }
 
-            if (numResultsToSkip < numResultsToReturn) {
-                prevLink = null;
-            }
-
+            // Send relevant variables to the JSP page
             request.setAttribute("prevLink", prevLink);
             request.setAttribute("nextLink", nextLink);
             request.setAttribute("numResults", basicResults.length);
