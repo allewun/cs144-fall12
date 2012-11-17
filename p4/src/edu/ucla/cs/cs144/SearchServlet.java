@@ -16,7 +16,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
     {
         try {
             AuctionSearchClient as = new AuctionSearchClient();
-            RequestDispatcher rd = getServletContext().getRequestDispatcher("/search.jsp");
+            String jspDest = "/search.jsp";
 
             // Parameter values
             String query = request.getParameter("q");
@@ -52,6 +52,15 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("numResults", basicResults.length);
             request.setAttribute("basicResults", basicResults);
 
+            // Error handling
+            if (numResultsToSkip < 0 ||
+                numResultsToReturn < 0 ||
+                !query.trim().matches("\\w+"))
+            {
+                jspDest = "/error.jsp";
+            }
+
+            RequestDispatcher rd = getServletContext().getRequestDispatcher(jspDest);
             rd.forward(request, response);
         }
         catch (ServletException e) {
