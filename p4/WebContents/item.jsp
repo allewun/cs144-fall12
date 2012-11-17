@@ -17,7 +17,24 @@
                 out.println("        Buy Price: " + itemBuyPrice + "<br />"); %>
         First Bid: <%= request.getAttribute("itemFirstBid") %> <br />
         Number of Bids: <%= request.getAttribute("itemNumberOfBids") %> <br />
-        Bids: <br />
+        <%  String[][] itemBids = (String[][])request.getAttribute("itemBids");
+            if (itemBids != null) {
+                out.println("        Bids: <br />");
+                out.println("        <ol>");
+                for (int i = 0; i < itemBids.length; i++) {
+                    out.println("        <li>UserID: " + itemBids[i][0] + "<br />");
+                    out.println("            Rating: " + itemBids[i][1] + "<br />");
+                    out.println("            Location: " + itemBids[i][2] + "<br />");
+                    out.println("            Country: " + itemBids[i][3] + "<br />");
+                    out.println("            Time: " + itemBids[i][4] + "<br />");
+                    out.println("            Amount: " + itemBids[i][5] + "<br /></li>");
+                }
+                out.println("        </ol>");
+            }
+            else {
+                out.println("        Bids: No Bids<br />");
+            }
+             %>
         Location: <%= request.getAttribute("itemLocation") %> <br />
         Country: <%= request.getAttribute("itemCountry") %> <br />
         Started: <%= request.getAttribute("itemStarted") %> <br />

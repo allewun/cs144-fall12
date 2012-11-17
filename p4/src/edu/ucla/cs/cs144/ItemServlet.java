@@ -21,6 +21,7 @@ import java.io.StringReader;
 import org.xml.sax.InputSource;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.NamedNodeMap;
 import javax.xml.xpath.XPathConstants;
 import java.util.Vector;
 
@@ -51,10 +52,12 @@ public class ItemServlet extends HttpServlet implements Servlet {
             expr = xpath.compile("Item/Category");
             NodeList itemCategoryNodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
             Vector itemCategoriesVector = new Vector();
+
             for (int i = 0; i < itemCategoryNodes.getLength(); i++) {
                 Node currentNode = itemCategoryNodes.item(i);
                 itemCategoriesVector.add(currentNode.getTextContent());
             }
+
             String[] itemCategories = new String[itemCategoriesVector.size()];
             itemCategoriesVector.toArray(itemCategories);
             request.setAttribute("itemCategories", itemCategories);
@@ -78,16 +81,45 @@ public class ItemServlet extends HttpServlet implements Servlet {
             String itemNumberOfBids = expr.evaluate(doc);
             request.setAttribute("itemNumberOfBids", itemNumberOfBids);
             // Item/Bids
-            /* if (itemXML.contains("<Bid>") {
+            if (itemXML.contains("<Bid>")) {
                 expr = xpath.compile("Item/Bids/Bid");
                 NodeList itemBidsNodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
-                Vector<String[]> itemBidsVector = new Vector<String[]();
+
+                Vector<Vector<String>>itemBidsVector = new Vector<Vector<String>>();
+
                 for (int i = 0; i < itemBidsNodes.getLength(); i++) {
-                    NodeList currentBidChileNodes = itemBidsNodes.getChildNodes();
-                    for (int i = 0; i < current
+                    // Current Bid properties
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Bidder/@UserID");
+                    String bidderUserID = expr.evaluate(doc);
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Bidder/@Rating");
+                    String bidderRating = expr.evaluate(doc);
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Bidder/Location");
+                    String bidderLocation = expr.evaluate(doc);
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Bidder/Country");
+                    String bidderCountry = expr.evaluate(doc);
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Time");
+                    String time = expr.evaluate(doc);
+                    expr = xpath.compile("Item/Bids/Bid[" + (i+1) + "]/Amount");
+                    String amount = expr.evaluate(doc);
                     
+                    // [UserID, Rating, Location, Country, Time, Amount]
+                    Vector<String> currentBidVector = new Vector<String>();
+                    currentBidVector.add(bidderUserID);
+                    currentBidVector.add(bidderRating);
+                    currentBidVector.add(bidderLocation);
+                    currentBidVector.add(bidderCountry);
+                    currentBidVector.add(time);
+                    currentBidVector.add(amount);
+                    
+                    itemBidsVector.add(currentBidVector);
                 }
-            } */
+
+                String[][] itemBids = new String[itemBidsVector.size()][6];
+                for (int i = 0; i < itemBidsVector.size(); i++) {
+                    itemBidsVector.get(i).toArray(itemBids[i]);
+                }
+                request.setAttribute("itemBids", itemBids);
+            }
             // Item/Location
             expr = xpath.compile("Item/Location");
             String itemLocation = expr.evaluate(doc);
@@ -112,7 +144,6 @@ public class ItemServlet extends HttpServlet implements Servlet {
             expr = xpath.compile("Item/Seller/@Rating");
             String itemSellerRating = expr.evaluate(doc);
             request.setAttribute("itemSellerRating", itemSellerRating);
-
             // Item/Description
             expr = xpath.compile("Item/Description");
             String itemDescription = expr.evaluate(doc);
