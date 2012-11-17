@@ -5,6 +5,11 @@
     </head>
     <body>
         <h1>Item Results</h1>
+        <form method="GET" action="/eBay/item">
+			<label for="itemId">Item ID:</label>
+			<input type="text" id="itemId" name="id" />
+			<input type="submit" value="Lookup another item" />
+		</form>
         ID: <%= request.getParameter("id") %> <br />
         Name: <%= request.getAttribute("itemName") %> <br />
         <%  String[] itemCategories = (String[])request.getAttribute("itemCategories");
