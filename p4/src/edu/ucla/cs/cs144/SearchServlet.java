@@ -53,10 +53,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 ||
-                numResultsToReturn < 0 ||
-                !query.trim().matches("\\w+"))
-            {
+            if (numResultsToSkip < 0 || numResultsToReturn < 0) {
                 jspDest = "/error.jsp";
             }
 
