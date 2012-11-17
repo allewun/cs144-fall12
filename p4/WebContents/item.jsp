@@ -55,5 +55,6 @@
         	<li>Seller UserID: <%= request.getAttribute("itemSellerUserID") %></li>
         	<li>Seller Rating: <%= request.getAttribute("itemSellerRating") %></li>
         	<li>Description: <%= request.getAttribute("itemDescription") %></li>
+        </ul>
     </body>
 </html>
