@@ -1,3 +1,9 @@
-Run this from /p4. It will build the project, restart Tomcat, and deploy it. It's available at: localhost:8080/eBay/
 
-ant clean && ant build && ant deploy && $CATALINA_HOME/bin/shutdown.sh && $CATALINA_HOME/bin/startup.sh
+CS 144 - Fall '12
+Project 4 - Part A
+
+Partners:
+    * Samuel Jun (003-955-212 - samuel.h.jun@gmail.com)
+    * Allen Wu   (103-790-579 - allen.wu@ucla.edu)
+
+
