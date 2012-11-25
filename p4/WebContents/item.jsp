@@ -14,7 +14,7 @@
                 geocoder = new google.maps.Geocoder();
                 var latlng = new google.maps.LatLng(39.977120, -101.345216);
                 var myOptions = {
-                    zoom: 8, // default is 8 
+                    zoom: 3, // default is 8 
                     center: latlng,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
@@ -78,6 +78,7 @@
                     geocoder.geocode( {'address': address}, function(results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             map.setCenter(results[0].geometry.location);
+                            map.setZoom(14);
                         }
                     });
                 }
@@ -96,7 +97,7 @@
                     out.println("No Description Provided");
 %>
             </li>
-            <li>Map: <div id="map_canvas" style="width:400px; height:400px"></div></li>
+            <li>Map: <div id="map_canvas" style="width:400px; height:350px"></div></li>
         </ul>
     </body>
 </html>
