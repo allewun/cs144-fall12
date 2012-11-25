@@ -2,8 +2,29 @@
 <html>
     <head>
         <title>Item Results</title>
+        <script type="text/javascript"
+            src="http://maps.google.com/maps/api/js?sensor=false">
+        </script>
+        <script type="text/javascript">
+            var geocoder;
+            var map;
+            var testString = "test string";
+
+            function initialize() {
+                geocoder = new google.maps.Geocoder();
+                var latlng = new google.maps.LatLng(39.977120, -101.345216);
+                var myOptions = {
+                    zoom: 8, // default is 8 
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+                setLocation();
+            }
+        </script> 
     </head>
-    <body>
+    <body onload="initialize()">
         <h1>Item Results</h1>
         <form method="GET" action="/eBay/item">
             <label for="itemId">Item ID:</label>
@@ -51,6 +72,19 @@
 %>
             </li>
             <li>Location: <%= request.getAttribute("itemLocation") %></li>
+            <script type="text/javascript">
+                function setLocation() {
+                    var address = "<%= request.getAttribute("itemLocation") %>";
+                    geocoder.geocode( {'address': address}, function(results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            map.setCenter(results[0].geometry.location);
+                        }
+                        else {
+                            alert("Could not find location");
+                        }
+                    });
+                }
+            </script>
             <li>Country: <%= request.getAttribute("itemCountry") %></li>
             <li>Started: <%= request.getAttribute("itemStarted") %></li>
             <li>Ends: <%= request.getAttribute("itemEnds") %></li>
@@ -65,6 +99,7 @@
                     out.println("No Description Provided");
 %>
             </li>
+            <li>Map: <div id="map_canvas" style="width:400px; height:400px"></div></li>
         </ul>
     </body>
 </html>
