@@ -2,13 +2,10 @@
 <html>
     <head>
         <title>Item Results</title>
-        <script type="text/javascript"
-            src="http://maps.google.com/maps/api/js?sensor=false">
-        </script>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
         <script type="text/javascript">
             var geocoder;
             var map;
-            var testString = "test string";
 
             function initialize() {
                 geocoder = new google.maps.Geocoder();
@@ -22,7 +19,16 @@
 
                 setLocation();
             }
-        </script> 
+            function setLocation() {
+                var address = document.getElementById("itemLocation").innerHTML;
+                geocoder.geocode( {'address': address}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(14);
+                    }
+                });
+            }
+            </script>
     </head>
     <body onload="initialize()">
         <h1>Item Results</h1>
@@ -71,18 +77,7 @@
                 } 
 %>
             </li>
-            <li>Location: <%= request.getAttribute("itemLocation") %></li>
-            <script type="text/javascript">
-                function setLocation() {
-                    var address = "<%= request.getAttribute("itemLocation") %>";
-                    geocoder.geocode( {'address': address}, function(results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            map.setCenter(results[0].geometry.location);
-                            map.setZoom(14);
-                        }
-                    });
-                }
-            </script>
+            <li>Location: <span id="itemLocation"><%= request.getAttribute("itemLocation") %></span></li>
             <li>Country: <%= request.getAttribute("itemCountry") %></li>
             <li>Started: <%= request.getAttribute("itemStarted") %></li>
             <li>Ends: <%= request.getAttribute("itemEnds") %></li>
