@@ -11,7 +11,7 @@
                 geocoder = new google.maps.Geocoder();
                 var latlng = new google.maps.LatLng(39.977120, -101.345216);
                 var myOptions = {
-                    zoom: 3, // default is 8 
+                    zoom: 3, // default is 8
                     center: latlng,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
@@ -28,9 +28,11 @@
                     }
                 });
             }
+
+            window.onload = function () {initialize();};
             </script>
     </head>
-    <body onload="initialize()">
+    <body>
         <h1>Item Results</h1>
         <form method="GET" action="/eBay/item">
             <label for="itemId">Item ID:</label>
@@ -74,7 +76,7 @@
                 }
                 else {
                    out.println("            Bids: No Bids");
-                } 
+                }
 %>
             </li>
             <li>Location: <span id="itemLocation"><%= request.getAttribute("itemLocation") %></span></li>
@@ -83,8 +85,8 @@
             <li>Ends: <%= request.getAttribute("itemEnds") %></li>
             <li>Seller UserID: <%= request.getAttribute("itemSellerUserID") %></li>
             <li>Seller Rating: <%= request.getAttribute("itemSellerRating") %></li>
-            <li>Description: 
-<%  
+            <li>Description:
+<%
                 String itemDescription = (String)request.getAttribute("itemDescription");
                 if (itemDescription != "")
                     out.println(itemDescription);

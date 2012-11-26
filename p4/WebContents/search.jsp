@@ -3,11 +3,19 @@
 <html>
 	<head>
 		<title>eBay Keyword Search Results</title>
+                <script type="text/javascript" src="/eBay/js/autosuggest2.js"></script>
+                <script type="text/javascript" src="/eBay/js/suggestions2.js"></script>
+                <script type="text/javascript">
+                    window.onload = function () {
+                        var oTextbox = new AutoSuggestControl(document.getElementById("searchField"), new StateSuggestions());
+                    };
+                </script>
+                <link rel="stylesheet" type="text/css" href="/eBay/css/styles.css" />
 	</head>
 	<body>
 		<h1>eBay Keyword Search Results</h1>
 		<form method="GET" action="/eBay/search">
-			<input type="text" name="q" />
+			<input type="text" name="q" id="searchField" />
 			<input type="hidden" name="numResultsToSkip" value="0" />
 			<input type="hidden" name="numResultsToReturn" value="10" />
 			<input type="submit" value="Search Again" />
