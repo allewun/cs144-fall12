@@ -9,6 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class ProxyServlet extends HttpServlet implements Servlet {
 
@@ -16,11 +22,32 @@ public class ProxyServlet extends HttpServlet implements Servlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        // test data
+        String query = "";
+        if (request.getParameter("q") != null) {
+            query = URLEncoder.encode(request.getParameter("q"), "UTF-8");
+        }
+
+        URL googleSuggestService = new URL("http://google.com/complete/search?output=toolbar&q=" + query);
+        HttpURLConnection conn = (HttpURLConnection)googleSuggestService.openConnection();
+
+        conn.connect();
+
+        InputStreamReader in = new InputStreamReader((InputStream)conn.getContent());
+        BufferedReader buff = new BufferedReader(in);
+
+        StringBuilder serverResponse = new StringBuilder();
+        String line;
+
+        while ((line = buff.readLine()) != null) {
+            serverResponse.append(line + "\n");
+        }
+
         PrintWriter out = response.getWriter();
         response.setContentType("text/xml");
-        out.println("<?xml version=\"1.0\"?><toplevel><CompleteSuggestion><suggestion data=\"ucla\"/><num_queries int=\"59200000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla football\"/><num_queries int=\"39300000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla football schedule\"/><num_queries int=\"51700000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla extension\"/><num_queries int=\"2660000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla map\"/><num_queries int=\"53900000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla library\"/><num_queries int=\"3170000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla medical center\"/><num_queries int=\"4400000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla jobs\"/><num_queries int=\"51400000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla schedule of classes\"/><num_queries int=\"304000\"/></CompleteSuggestion><CompleteSuggestion><suggestion data=\"ucla store\"/><num_queries int=\"19200000\"/></CompleteSuggestion></toplevel>");
+        out.println(serverResponse.toString());
         out.close();
+
+        // TODO: catch exceptions, error handling
     }
 }
 
