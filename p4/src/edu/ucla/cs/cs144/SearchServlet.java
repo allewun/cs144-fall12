@@ -19,7 +19,11 @@ public class SearchServlet extends HttpServlet implements Servlet {
             String jspDest = "/search.jsp";
 
             // Parameter values
-            String query = request.getParameter("q");
+            String query = "";
+            if (request.getParameter("q") != null) {
+                query = request.getParameter("q");
+            }
+
             int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
             int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
 
@@ -53,7 +57,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 || numResultsToReturn < 0) {
+            if (numResultsToSkip < 0 || numResultsToReturn < 0 || query.equals("")) {
                 jspDest = "/error.jsp";
             }
 
