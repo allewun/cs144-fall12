@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
+import java.util.regex.Pattern;
+
 public class SearchServlet extends HttpServlet implements Servlet {
 
     public SearchServlet() {}
@@ -18,18 +20,31 @@ public class SearchServlet extends HttpServlet implements Servlet {
             AuctionSearchClient as = new AuctionSearchClient();
             String jspDest = "/search.jsp";
 
+            boolean isError = false;
+
             // Parameter values
             String query = "";
             int numResultsToSkip = 0;
             int numResultsToReturn = 10;
+            Pattern nonNumbers = Pattern.compile("\\D");
+
+            if (request.getParameter("numResultsToSkip") == null ||
+                request.getParameter("numResultsToReturn") == null ||
+                request.getParameter("numResultsToSkip").equals("") ||
+                request.getParameter("numResultsToReturn").equals("") ||
+                nonNumbers.matcher(request.getParameter("numResultsToSkip")).find() ||
+                nonNumbers.matcher(request.getParameter("numResultsToReturn")).find())
+            {
+                isError = true;
+            }
 
             if (request.getParameter("q") != null) {
                 query = request.getParameter("q");
             }
-            if (request.getParameter("numResultsToSkip") != null) {
+            if (request.getParameter("numResultsToSkip") != null && !isError) {
                 numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
             }
-            if (request.getParameter("numResultsToReturn") != null) {
+            if (request.getParameter("numResultsToReturn") != null && !isError) {
                 numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
             }
 
@@ -63,9 +78,10 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 ||
-                numResultsToReturn < 0 ||
+            if (isError ||
                 query.equals("") ||
+                numResultsToSkip < 0 ||
+                numResultsToReturn < 0 ||
                 (basicResults.length > 0 && basicResults[0].getItemId().equals("-1")))
             {
                 jspDest = "/error.jsp";
