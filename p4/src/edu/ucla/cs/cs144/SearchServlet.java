@@ -16,6 +16,8 @@ public class SearchServlet extends HttpServlet implements Servlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        String jspError = "/error.jsp";
+
         try {
             AuctionSearchClient as = new AuctionSearchClient();
             String jspDest = "/search.jsp";
@@ -84,18 +86,17 @@ public class SearchServlet extends HttpServlet implements Servlet {
                 numResultsToReturn < 0 ||
                 (basicResults.length > 0 && basicResults[0].getItemId().equals("-1")))
             {
-                jspDest = "/error.jsp";
+                jspDest = jspError;
             }
 
-            RequestDispatcher rd = getServletContext().getRequestDispatcher(jspDest);
-            rd.forward(request, response);
+            request.getRequestDispatcher(jspDest).forward(request, response);
         }
         catch (ServletException e) {
-            // TODO Auto-generated catch block
+            request.getRequestDispatcher(jspError).forward(request, response);
             e.printStackTrace();
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
+            request.getRequestDispatcher(jspError).forward(request, response);
             e.printStackTrace();
         }
     }
