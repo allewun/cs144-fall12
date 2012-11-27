@@ -20,12 +20,18 @@ public class SearchServlet extends HttpServlet implements Servlet {
 
             // Parameter values
             String query = "";
+            int numResultsToSkip = 0;
+            int numResultsToReturn = 10;
+
             if (request.getParameter("q") != null) {
                 query = request.getParameter("q");
             }
-
-            int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
-            int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+            if (request.getParameter("numResultsToSkip") != null) {
+                numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
+            }
+            if (request.getParameter("numResultsToReturn") != null) {
+                numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+            }
 
             // Search and store the results
             SearchResult[] basicResults = as.basicSearch(query, numResultsToSkip, numResultsToReturn);
@@ -57,7 +63,11 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 || numResultsToReturn < 0 || query.equals("") || basicResults[0].getItemId().equals("-1")) {
+            if (numResultsToSkip < 0 ||
+                numResultsToReturn < 0 ||
+                query.equals("") ||
+                (basicResults.length > 0 && basicResults[0].getItemId().equals("-1")))
+            {
                 jspDest = "/error.jsp";
             }
 
