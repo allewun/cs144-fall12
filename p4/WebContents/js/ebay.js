@@ -1,3 +1,4 @@
+// CS 144 Project 4
 
 String.prototype.trim = function () {
 	return this.replace(/^\s+|\s+$/g, "");
@@ -22,7 +23,9 @@ function preventDefault(evt) {
 
 function validateItemId(evt) {
 	var value = document.getElementById("itemId").value;
-	if (value.trim().search(/\D/g) != -1) {
+
+	// if field contains non-numbers or is empty, then don't submit
+	if (value.trim().search(/\D/g) != -1 || value.trim() === "") {
 		alert("The Item ID must be a positive integer.");
 		preventDefault(evt);
 	}
