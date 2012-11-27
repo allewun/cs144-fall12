@@ -30,71 +30,139 @@
             }
 
             window.onload = function () {initialize();};
-            </script>
+        </script>
+        <link rel="stylesheet" type="text/css" href="/eBay/css/styles.css" />
     </head>
     <body>
-        <h1>Item Results</h1>
-        <form method="GET" action="/eBay/item">
-            <label for="itemId">Item ID:</label>
-            <input type="text" id="itemId" name="id" />
-            <input type="submit" value="Lookup another item" />
-        </form>
-        <ul>
-            <li>ID: <%= request.getParameter("id") %></li>
-            <li>Name: <%= request.getAttribute("itemName") %></li>
+        <div id="mini">
+            <div id="header">
+                <h1><span class="ebay"><span class="e">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span> Item Results</h1>
+            </div>
+
+            <form method="GET" action="/eBay/item">
+                <label for="itemId">Item ID:</label>
+                <input type="text" id="itemId" name="id" />
+                <input type="submit" value="Lookup another item" />
+            </form>
+        </div>
+
+
+        <div id="results">
+            <table>
+                <tr>
+                    <td>Item ID:</td>
+                    <td><%= request.getParameter("id") %></td>
+                </tr>
+                <tr>
+                    <td>Name:</td>
+                    <td><%= request.getAttribute("itemName") %></td>
+                </tr>
+                <tr>
+                    <td>Categories:</td>
+                    <td>
 <%
-                String[] itemCategories = (String[])request.getAttribute("itemCategories");
-                for (int i = 0; i < itemCategories.length; i++) {
-                    out.println("            <li>Category: " + itemCategories[i] + "</li>");
-                }
-%>
-            <li>Currently: <%= request.getAttribute("itemCurrently") %></li>
-<%
-               String itemBuyPrice = (String)request.getAttribute("itemBuyPrice");
-               if (itemBuyPrice != null)
-                   out.println("            <li>Buy Price: " + itemBuyPrice + "</li>");
-               else
-                   out.println("            <li>Buy Price: N/A</li>");
-%>
-            <li>First Bid: <%= request.getAttribute("itemFirstBid") %></li>
-            <li>Number of Bids: <%= request.getAttribute("itemNumberOfBids") %></li>
-            <li>
-<%
-                String[][] itemBids = (String[][])request.getAttribute("itemBids");
-                if (itemBids != null) {
-                    out.println("            Bids:");
-                    out.println("            <ol>");
-                    for (int i = 0; i < itemBids.length; i++) {
-                        out.println("            <li>UserID: " + itemBids[i][0] + "<br />");
-                        out.println("                Rating: " + itemBids[i][1] + "<br />");
-                        out.println("                Location: " + itemBids[i][2] + "<br />");
-                        out.println("                Country: " + itemBids[i][3] + "<br />");
-                        out.println("                Time: " + itemBids[i][4] + "<br />");
-                        out.println("                Amount: " + itemBids[i][5] + "<br /></li>");
+                    String[] itemCategories = (String[])request.getAttribute("itemCategories");
+                    for (int i = 0; i < itemCategories.length; i++) {
+                        if (i < itemCategories.length - 1) {
+                            out.println(itemCategories[i] + ", ");
+                        }
+                        else {
+                            out.println(itemCategories[i]);
+                        }
                     }
-                    out.println("            </ol>");
-                }
-                else {
-                   out.println("            Bids: No Bids");
-                }
 %>
-            </li>
-            <li>Location: <span id="itemLocation"><%= request.getAttribute("itemLocation") %></span></li>
-            <li>Country: <%= request.getAttribute("itemCountry") %></li>
-            <li>Started: <%= request.getAttribute("itemStarted") %></li>
-            <li>Ends: <%= request.getAttribute("itemEnds") %></li>
-            <li>Seller UserID: <%= request.getAttribute("itemSellerUserID") %></li>
-            <li>Seller Rating: <%= request.getAttribute("itemSellerRating") %></li>
-            <li>Description:
+                    </td>
+                </tr>
+                <tr>
+                    <td>Currently:</td>
+                    <td><%= request.getAttribute("itemCurrently") %></td>
+                </tr>
+                <tr>
+                    <td>Buy Price:</td>
+                    <td>
 <%
-                String itemDescription = (String)request.getAttribute("itemDescription");
-                if (itemDescription != "")
-                    out.println(itemDescription);
-                else
-                    out.println("No Description Provided");
+                   String itemBuyPrice = (String)request.getAttribute("itemBuyPrice");
+                   if (itemBuyPrice != null)
+                       out.println(itemBuyPrice);
+                   else
+                       out.println("N/A");
 %>
-            </li>
-            <li>Map: <div id="map_canvas" style="width:400px; height:350px"></div></li>
-        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>First Bid:</td>
+                    <td><%= request.getAttribute("itemFirstBid") %></td>
+                </tr>
+                <tr>
+                    <td>Number of Bids:</td>
+                    <td><%= request.getAttribute("itemNumberOfBids") %></td>
+                </tr>
+
+                <tr>
+                    <td>Bids:</td>
+                    <td>
+<%
+                    String[][] itemBids = (String[][])request.getAttribute("itemBids");
+                    if (itemBids != null) {
+                        out.println("            <ol>");
+                        for (int i = 0; i < itemBids.length; i++) {
+                            out.println("            <li>UserID: " + itemBids[i][0] + "<br />");
+                            out.println("                Rating: " + itemBids[i][1] + "<br />");
+                            out.println("                Location: " + itemBids[i][2] + "<br />");
+                            out.println("                Country: " + itemBids[i][3] + "<br />");
+                            out.println("                Time: " + itemBids[i][4] + "<br />");
+                            out.println("                Amount: " + itemBids[i][5] + "<br /></li>");
+                        }
+                        out.println("            </ol>");
+                    }
+                    else {
+                       out.println("No Bids");
+                    }
+%>
+                    </td>
+                </td>
+                <tr>
+                    <td>Location:</td>
+                    <td><span id="itemLocation"><%= request.getAttribute("itemLocation") %></span></td>
+                </td>
+                <tr>
+                    <td>Country:</td>
+                    <td><%= request.getAttribute("itemCountry") %></td>
+                </td>
+                <tr>
+                    <td>Started:</td>
+                    <td><%= request.getAttribute("itemStarted") %></td>
+                </td>
+                <tr>
+                    <td>Ends:</td>
+                    <td><%= request.getAttribute("itemEnds") %></td>
+                </td>
+                <tr>
+                    <td>Seller UserID:</td>
+                    <td><%= request.getAttribute("itemSellerUserID") %></td>
+                </td>
+                <tr>
+                    <td>Seller Rating:</td>
+                    <td><%= request.getAttribute("itemSellerRating") %></td>
+                </td>
+                <tr>
+                    <td>Description:</td>
+                    <td>
+<%
+                    String itemDescription = (String)request.getAttribute("itemDescription");
+                    if (itemDescription != "")
+                        out.println(itemDescription);
+                    else
+                        out.println("No Description Provided");
+%>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div id="map_canvas"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </body>
 </html>
