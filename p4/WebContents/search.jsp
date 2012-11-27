@@ -18,7 +18,7 @@
                 <h1><span class="ebay"><span class="e">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span> Keyword Search Results</h1>
             </div>
             <form method="GET" action="/eBay/search">
-                <input type="text" name="q" id="searchField" autoocomplete="off" />
+                <input type="text" name="q" id="searchField" autocomplete="off" />
                 <input type="hidden" name="numResultsToSkip" value="0" />
                 <input type="hidden" name="numResultsToReturn" value="10" />
                 <input type="submit" value="Search Again" />
