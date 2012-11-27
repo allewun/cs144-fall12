@@ -57,7 +57,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 || numResultsToReturn < 0 || query.equals("")) {
+            if (numResultsToSkip < 0 || numResultsToReturn < 0 || query.equals("") || basicResults[0].getItemId().equals("-1")) {
                 jspDest = "/error.jsp";
             }
 
