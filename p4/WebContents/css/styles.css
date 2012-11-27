@@ -25,6 +25,10 @@ body {
     background: -moz-linear-gradient(top, #e3e3e3 0%, #fff 20%); /* FF3.6+ */
 }
 
+em {
+    font-style: italic;
+}
+
 .vert {
     height: 50%;
     float: left;
@@ -40,7 +44,7 @@ body {
     clear: left;
 }
 
-#home #header {
+#header {
     text-align: center;
 }
 
@@ -103,19 +107,55 @@ body {
 
 .button {
     background: #f0f0f0;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     -moz-border-radius: 4px;
     text-decoration: none;
-    color: #666;
+    color: #333;
+    padding: 3px;
 }
 
-#home form {
+div form {
     text-align: center;
     margin-top: 20px;
 }
 
-#home form * {
+div form * {
     display: inline-block;
+}
+
+/* "Mini" forms for searching again on results page */
+
+#mini {
+    width: 400px;
+    height: 100px;
+    margin: 20px auto;
+}
+
+#mini h1 {
+    font-size: 20px;
+}
+
+#mini h2 {
+    font-size: 16px;
+}
+
+#mini form {
+    margin-top: 10px;
+}
+
+/* Results list */
+
+#results {
+    margin-left: 50px;
+}
+
+#results ul {
+    margin-top: 20px;
+    list-style: none;
+}
+
+#results #navlinks {
+    margin-top: 20px;
 }
 
 /* Autosuggest box */
