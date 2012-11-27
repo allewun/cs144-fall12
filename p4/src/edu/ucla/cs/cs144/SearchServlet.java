@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
-import java.net.URLEncoder;
 import java.util.regex.Pattern;
 
 public class SearchServlet extends HttpServlet implements Servlet {
@@ -42,7 +41,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
             }
 
             if (request.getParameter("q") != null) {
-                query = URLEncoder.encode(request.getParameter("q"), "UTF-8");
+                query = request.getParameter("q");
             }
             if (request.getParameter("numResultsToSkip") != null && !isError) {
                 numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
@@ -82,6 +81,7 @@ public class SearchServlet extends HttpServlet implements Servlet {
 
             // Error handling
             if (isError ||
+                query.equals("") ||
                 numResultsToSkip < 0 ||
                 numResultsToReturn < 0 ||
                 (basicResults.length > 0 && basicResults[0].getItemId().equals("-1")))
