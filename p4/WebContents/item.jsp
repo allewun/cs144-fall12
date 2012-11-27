@@ -108,16 +108,20 @@
 <%
                     String[][] itemBids = (String[][])request.getAttribute("itemBids");
                     if (itemBids != null) {
-                        out.println("            <ol>");
+                        out.println("<ol>");
                         for (int i = 0; i < itemBids.length; i++) {
-                            out.println("            <li>UserID: " + itemBids[i][0] + "<br />");
-                            out.println("                Rating: " + itemBids[i][1] + "<br />");
-                            out.println("                Location: " + itemBids[i][2] + "<br />");
-                            out.println("                Country: " + itemBids[i][3] + "<br />");
-                            out.println("                Time: " + itemBids[i][4] + "<br />");
-                            out.println("                Amount: " + itemBids[i][5] + "<br /></li>");
+                            out.println("<li>");
+                            out.println("<table>");
+                            out.println("    <tr><td>UserID:</td><td>"   + itemBids[i][0] + "</td></tr>");
+                            out.println("    <tr><td>Rating:</td><td>"   + itemBids[i][1] + "</td></tr>");
+                            out.println("    <tr><td>Location:</td><td>" + itemBids[i][2] + "</td></tr>");
+                            out.println("    <tr><td>Country:</td><td>"  + itemBids[i][3] + "</td></tr>");
+                            out.println("    <tr><td>Time:</td><td>"     + itemBids[i][4] + "</td></tr>");
+                            out.println("    <tr><td>Amount:</td><td>"   + itemBids[i][5] + "</td></tr>");
+                            out.println("</table>");
+                            out.println("</li>");
                         }
-                        out.println("            </ol>");
+                        out.println("</ol>");
                     }
                     else {
                        out.println("No Bids");
