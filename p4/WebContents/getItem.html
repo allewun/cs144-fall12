@@ -2,6 +2,12 @@
 <html>
     <head>
         <title>eBay Get Item - CS 144 Project 4</title>
+        <script type="text/javascript" src="/eBay/js/ebay.js"></script>
+        <script type="text/javascript">
+            window.onload = function () {
+                addEvent("itemIdForm", "submit", function (evt) {validateItemId(evt);});
+            };
+        </script>
         <link rel="stylesheet" type="text/css" href="/eBay/css/styles.css" />
     </head>
     <body>
@@ -10,7 +16,7 @@
             <div id="header">
                 <h1><span class="ebay"><span class="e">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span> Get Item</h1>
             </div>
-            <form method="GET" action="/eBay/item">
+            <form method="GET" action="/eBay/item" id="itemIdForm">
                 <label for="itemId">Item ID:</label>
                 <input type="text" id="itemId" name="id" />
                 <input type="submit" value="Submit" />

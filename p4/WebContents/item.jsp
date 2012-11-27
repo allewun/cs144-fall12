@@ -3,11 +3,12 @@
     <head>
         <title>Item Results</title>
         <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript" src="/eBay/js/ebay.js"></script>
         <script type="text/javascript">
             var geocoder;
             var map;
 
-            function initialize() {
+            function initializeMap() {
                 geocoder = new google.maps.Geocoder();
                 var latlng = new google.maps.LatLng(39.977120, -101.345216);
                 var myOptions = {
@@ -29,7 +30,10 @@
                 });
             }
 
-            window.onload = function () {initialize();};
+            window.onload = function () {
+                initializeMap();
+                addEvent("itemIdForm", "submit", function (evt) {validateItemId(evt);});
+            };
         </script>
         <link rel="stylesheet" type="text/css" href="/eBay/css/styles.css" />
     </head>
@@ -39,7 +43,7 @@
                 <h1><span class="ebay"><span class="e">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span> Item Results</h1>
             </div>
 
-            <form method="GET" action="/eBay/item">
+            <form method="GET" action="/eBay/item" id="itemIdForm">
                 <label for="itemId">Item ID:</label>
                 <input type="text" id="itemId" name="id" />
                 <input type="submit" value="Lookup another item" />
