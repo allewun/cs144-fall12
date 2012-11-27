@@ -1,6 +1,6 @@
 
 CS 144 - Fall '12
-Project 4 - Part A
+Project 4 - Part C
 
 Partners:
     * Samuel Jun (003-955-212 - samuel.h.jun@gmail.com)
