@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>eBay Keyword Search - CS 144 Project 4</title>
-	</head>
-	<body>
-		<h1>eBay Keyword Search</h1>
-		<form method="GET" action="/eBay/search">
-			<label for="q">Search:</label>
-			<input type="text" id="q" name="q" />
-			<input type="hidden" name="numResultsToSkip" value="0" />
-			<input type="hidden" name="numResultsToReturn" value="10" />
-			<input type="submit" value="Submit" />
-		</form>
-	</body>
+    <head>
+        <title>eBay Keyword Search - CS 144 Project 4</title>
+        <script type="text/javascript" src="/eBay/js/autosuggest2.js"></script>
+        <script type="text/javascript" src="/eBay/js/suggestions2.js"></script>
+        <script type="text/javascript">
+            window.onload = function () {
+                var oTextbox = new AutoSuggestControl(document.getElementById("searchField"), new SearchSuggestions());
+            };
+        </script>
+        <link rel="stylesheet" type="text/css" href="/eBay/css/styles.css" />
+    </head>
+    <body>
+        <div class="vert"></div><!-- for vertically aligning -->
+        <div id="home">
+            <div id="header">
+                <h1><span class="ebay"><span class="e">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span> Keyword Search</h1>
+            </div>
+            <form method="GET" action="/eBay/search">
+                <label for="q">Search:</label>
+                <input type="text" id="searchField" name="q" autocomplete="off"  />
+                <input type="hidden" name="numResultsToSkip" value="0" />
+                <input type="hidden" name="numResultsToReturn" value="10" />
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+    </body>
 </html>

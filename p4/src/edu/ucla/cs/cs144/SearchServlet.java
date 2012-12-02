@@ -8,20 +8,47 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
+import java.util.regex.Pattern;
+
 public class SearchServlet extends HttpServlet implements Servlet {
 
     public SearchServlet() {}
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
+        String jspError = "/error.jsp";
+
         try {
             AuctionSearchClient as = new AuctionSearchClient();
             String jspDest = "/search.jsp";
 
+            boolean isError = false;
+
             // Parameter values
-            String query = request.getParameter("q");
-            int numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
-            int numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+            String query = "";
+            int numResultsToSkip = 0;
+            int numResultsToReturn = 10;
+            Pattern nonNumbers = Pattern.compile("\\D");
+
+            if (request.getParameter("numResultsToSkip") == null ||
+                request.getParameter("numResultsToReturn") == null ||
+                request.getParameter("numResultsToSkip").equals("") ||
+                request.getParameter("numResultsToReturn").equals("") ||
+                nonNumbers.matcher(request.getParameter("numResultsToSkip")).find() ||
+                nonNumbers.matcher(request.getParameter("numResultsToReturn")).find())
+            {
+                isError = true;
+            }
+
+            if (request.getParameter("q") != null) {
+                query = request.getParameter("q");
+            }
+            if (request.getParameter("numResultsToSkip") != null && !isError) {
+                numResultsToSkip = Integer.parseInt(request.getParameter("numResultsToSkip"));
+            }
+            if (request.getParameter("numResultsToReturn") != null && !isError) {
+                numResultsToReturn = Integer.parseInt(request.getParameter("numResultsToReturn"));
+            }
 
             // Search and store the results
             SearchResult[] basicResults = as.basicSearch(query, numResultsToSkip, numResultsToReturn);
@@ -53,19 +80,23 @@ public class SearchServlet extends HttpServlet implements Servlet {
             request.setAttribute("basicResults", basicResults);
 
             // Error handling
-            if (numResultsToSkip < 0 || numResultsToReturn < 0) {
-                jspDest = "/error.jsp";
+            if (isError ||
+                query.equals("") ||
+                numResultsToSkip < 0 ||
+                numResultsToReturn < 0 ||
+                (basicResults.length > 0 && basicResults[0].getItemId().equals("-1")))
+            {
+                jspDest = jspError;
             }
 
-            RequestDispatcher rd = getServletContext().getRequestDispatcher(jspDest);
-            rd.forward(request, response);
+            request.getRequestDispatcher(jspDest).forward(request, response);
         }
         catch (ServletException e) {
-            // TODO Auto-generated catch block
+            request.getRequestDispatcher(jspError).forward(request, response);
             e.printStackTrace();
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
+            request.getRequestDispatcher(jspError).forward(request, response);
             e.printStackTrace();
         }
     }
