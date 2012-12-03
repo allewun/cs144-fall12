@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div id="results">
+        <div id="result">
             <table>
                 <tr>
                     <td>Item ID:</td>
@@ -26,7 +26,7 @@
                     <td><%= request.getAttribute("itemBuyPrice") %></td>
                 </tr>
                 <tr>
-                    <td>Credit Card Number:</td>
+                    <td>Credit Card #:</td>
                     <td><%= request.getAttribute("creditCardNumber") %></td>
                 </tr>
                 <tr>
@@ -37,23 +37,6 @@
                     <td>Time:</td>
                     <td><%= request.getAttribute("currentTime") %></td>
                 </tr>
-            </table>
-
-            <br />
-            <table>
-                <tr>
-                    <td>getServerName()</td>
-                    <td><%= request.getServerName() %></td>
-                </tr>
-                <tr>
-                    <td>getContextPath()</td>
-                    <td><%= request.getContextPath() %></td>
-                </tr>
-                <tr>
-                    <td>isSecure()</td>
-                    <td><%= request.isSecure() %></td>
-                </tr>
-
             </table>
         </div>
     </body>

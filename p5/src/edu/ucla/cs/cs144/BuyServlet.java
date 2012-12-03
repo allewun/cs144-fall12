@@ -17,18 +17,22 @@ public class BuyServlet extends HttpServlet implements Servlet {
     {
         String jspDest = "/buyItem.jsp";
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
 
-        String itemId = (String)session.getAttribute("itemId");
-        String itemName = (String)session.getAttribute("itemName");
-        String itemBuyPrice = (String)session.getAttribute("itemBuyPrice");
-
-        if (session.isNew() || itemBuyPrice == null) {
+        if (session == null) {
             jspDest = "/error.jsp";
         } else {
-            request.setAttribute("itemId", itemId);
-            request.setAttribute("itemName", itemName);
-            request.setAttribute("itemBuyPrice", itemBuyPrice);
+            String itemId = (String)session.getAttribute("itemId");
+            String itemName = (String)session.getAttribute("itemName");
+            String itemBuyPrice = (String)session.getAttribute("itemBuyPrice");
+
+            if (session.isNew() || itemBuyPrice == null) {
+                jspDest = "/error.jsp";
+            } else {
+                request.setAttribute("itemId", itemId);
+                request.setAttribute("itemName", itemName);
+                request.setAttribute("itemBuyPrice", itemBuyPrice);
+            }
         }
 
         request.getRequestDispatcher(jspDest).forward(request, response);

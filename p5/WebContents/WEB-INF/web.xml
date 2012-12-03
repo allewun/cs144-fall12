@@ -24,6 +24,7 @@
         <url-pattern>/suggest</url-pattern>
     </servlet-mapping>
 
+    <!-- Project 5: Buying Item Servlets -->
     <servlet>
         <servlet-name>BuyServlet</servlet-name>
         <servlet-class>edu.ucla.cs.cs144.BuyServlet</servlet-class>

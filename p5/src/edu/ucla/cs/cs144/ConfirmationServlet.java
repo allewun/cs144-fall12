@@ -19,26 +19,30 @@ public class ConfirmationServlet extends HttpServlet implements Servlet {
     {
         String jspDest = "/confirmation.jsp";
 
-        HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(false);
 
-        String creditCardNumber = request.getParameter("creditCardNumber");
-        String itemId = (String)session.getAttribute("itemId");
-        String itemName = (String)session.getAttribute("itemName");
-        String itemBuyPrice = (String)session.getAttribute("itemBuyPrice");
-
-        if (session.isNew() || itemBuyPrice == null || creditCardNumber == null || !creditCardNumber.matches("[0-9]+")) {
+        if (session == null) {
             jspDest = "/error.jsp";
         } else {
-            request.setAttribute("itemId", itemId);
-            request.setAttribute("itemName", itemName);
-            request.setAttribute("itemBuyPrice", itemBuyPrice);
-            request.setAttribute("creditCardNumber", creditCardNumber);
+            String creditCardNumber = request.getParameter("creditCardNumber");
+            String itemId = (String)session.getAttribute("itemId");
+            String itemName = (String)session.getAttribute("itemName");
+            String itemBuyPrice = (String)session.getAttribute("itemBuyPrice");
 
-            Date d = new Date();
-            String currentDate = (new SimpleDateFormat("MM/dd/yyyy")).format(d);
-            String currentTime = (new SimpleDateFormat("HH:mm:ss.SSS")).format(d);
-            request.setAttribute("currentDate", currentDate);
-            request.setAttribute("currentTime", currentTime);
+            if (session.isNew() || itemBuyPrice == null || creditCardNumber == null || !creditCardNumber.matches("[0-9]+")) {
+                jspDest = "/error.jsp";
+            } else {
+                request.setAttribute("itemId", itemId);
+                request.setAttribute("itemName", itemName);
+                request.setAttribute("itemBuyPrice", itemBuyPrice);
+                request.setAttribute("creditCardNumber", creditCardNumber);
+
+                Date d = new Date();
+                String currentDate = (new SimpleDateFormat("MM/dd/yyyy")).format(d);
+                String currentTime = (new SimpleDateFormat("HH:mm:ss.SSS")).format(d);
+                request.setAttribute("currentDate", currentDate);
+                request.setAttribute("currentTime", currentTime);
+            }
         }
 
         request.getRequestDispatcher(jspDest).forward(request, response);

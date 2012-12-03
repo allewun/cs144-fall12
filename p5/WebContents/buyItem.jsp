@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div id="results">
+        <div id="result">
             <table>
                 <tr>
                     <td>Item ID:</td>
@@ -31,21 +31,6 @@
                 Credit Card Number: <input type="text" name="creditCardNumber" /><br />
                 <input type="submit" value="Submit" />
             </form>
-
-            <table>
-                <tr>
-                    <td>getServerName()</td>
-                    <td><%= request.getServerName() %></td>
-                </tr>
-                <tr>
-                    <td>getContextPath()</td>
-                    <td><%= request.getContextPath() %></td>
-                </tr>
-                <tr>
-                    <td>isSecure()</td>
-                    <td><%= request.isSecure() %></td>
-                </tr>
-            </table>
         </div>
     </body>
 </html>
