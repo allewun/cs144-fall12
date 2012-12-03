@@ -94,7 +94,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Buy Button: </td>
+                    <td></td>
                     <td>
 <%
                     if (itemBuyPrice != null) {
