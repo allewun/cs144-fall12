@@ -94,6 +94,16 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Buy Button: </td>
+                    <td>
+<%
+                    if (itemBuyPrice != null) {
+                        out.println("<a href=\"/eBay/buyItem\">Buy Now</a>");
+                    }
+%>
+                    </td>
+                </tr>
+                <tr>
                     <td>First Bid:</td>
                     <td><%= request.getAttribute("itemFirstBid") %></td>
                 </tr>

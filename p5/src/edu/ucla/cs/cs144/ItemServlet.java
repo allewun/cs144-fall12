@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import javax.servlet.RequestDispatcher;
 import javax.xml.parsers.DocumentBuilder;
@@ -46,6 +47,9 @@ public class ItemServlet extends HttpServlet implements Servlet {
                 jspDest = jspError;
             }
             else {
+                HttpSession session = request.getSession(true);
+                session.setAttribute("itemId", itemId);
+
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document doc = builder.parse(new InputSource(new StringReader(itemXML)));
@@ -57,6 +61,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
                 expr = xpath.compile("Item/Name");
                 String itemName = expr.evaluate(doc);
                 request.setAttribute("itemName", itemName);
+                session.setAttribute("itemName", itemName);
                 // Item/Category
                 expr = xpath.compile("Item/Category");
                 NodeList itemCategoryNodes = (NodeList)expr.evaluate(doc, XPathConstants.NODESET);
@@ -75,11 +80,13 @@ public class ItemServlet extends HttpServlet implements Servlet {
                 String itemCurrently = expr.evaluate(doc);
                 request.setAttribute("itemCurrently", itemCurrently);
                 // Item/Buy_Price
-                if (itemXML.contains("<Buy_Price>"))
-                {
+                if (itemXML.contains("<Buy_Price>")) {
                     expr = xpath.compile("Item/Buy_Price");
                     String itemBuyPrice = expr.evaluate(doc);
                     request.setAttribute("itemBuyPrice", itemBuyPrice);
+                    session.setAttribute("itemBuyPrice", itemBuyPrice);
+                } else {
+                    session.setAttribute("itemBuyPrice", null);
                 }
                 // Item/First_Bid
                 expr = xpath.compile("Item/First_Bid");
