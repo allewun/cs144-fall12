@@ -87,19 +87,9 @@
 <%
                    String itemBuyPrice = (String)request.getAttribute("itemBuyPrice");
                    if (itemBuyPrice != null)
-                       out.println(itemBuyPrice);
+                       out.println(itemBuyPrice + "<a class=\"buy\" href=\"/eBay/buyItem\">Buy Now!</a>");
                    else
                        out.println("N/A");
-%>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-<%
-                    if (itemBuyPrice != null) {
-                        out.println("<a href=\"/eBay/buyItem\">Buy Now</a>");
-                    }
 %>
                     </td>
                 </tr>

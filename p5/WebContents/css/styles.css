@@ -164,7 +164,6 @@ div form * {
     margin-top: 10px;
 }
 
-
 tr td:first-child {
     width: 150px;
     text-align: right;
@@ -179,6 +178,24 @@ li tr td:first-child {
 
 td li {
     margin-left: 23px;
+}
+
+.buy {
+    display: inline-block;
+    background: #d12e2e;
+    color: #fff;
+    text-shadow: 0 -1px #900;
+    -moz-border-radius: 3px;
+    padding: 2px 3px;
+    font-weight: bold;
+    border: 1px solid #bd2a2a;
+    text-decoration: none;
+    font-size: 13px;
+    margin-left: 20px; 
+}
+
+.buy:hover {
+    background: #d84b4b;
 }
 
 /* Autosuggest box */
