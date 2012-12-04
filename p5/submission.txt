@@ -25,3 +25,16 @@ Submitted files (with your original filename and md5 hash):
 Timestamp: Mon, Dec 03rd, 2012 1:19:24am
 IP address: 198.72.221.241
 
+
+3rd submission:
+
+Your name: Allen Wu
+Your student id: 103790579
+Your partner's name: Samuel Jun
+Your partner's student id: 003955212
+Your email: allen.wu@ucla.edu
+Your platform: virtualBox
+Submitted files (with your original filename and md5 hash):
+    project5.zip (project5.zip: 8dd8787b3b9402aa60eaf0724ecb5db7)
+    Timestamp: Mon, Dec 03rd, 2012 5:57:56pm
+    IP address: 198.72.221.241
