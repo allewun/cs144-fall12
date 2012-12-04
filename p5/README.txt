@@ -22,7 +22,9 @@ A1: (4)->(5)
 A2: A HttpSession object is able to keep track of sessions through cookies. The
     HttpSession object keeps track of the buy price of the item in the
     background. The only thing the user transmits to the server is the session
-    id through the cookie.
+    id through the cookie. The buy price is held only in the server and not in
+    the cookie. Because the buy price is held in the server, the user will not
+    be able to change the buy price of the item remotely.
 A3: Using CSS, we set the main <div> container of the page to have a width of 
     95%, which is ensured to be smaller than 100%, the width of the screen.
     In addition to this, one of the <meta name="viewport"> tag attributes,
